@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{163F5BDB-43F7-46AA-B1C4-011C62B3436A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LdifHelper", "src\LdifHelper\LdifHelper.csproj", "{FA954513-757C-4A2E-B5B0-C4AAE22BE2D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8890CC49-AEB8-4389-BC0D-B84A3F8055B3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LdifHelper.Tests", "tests\LdifHelper.Tests\LdifHelper.Tests.csproj", "{22279C7C-BD2E-4657-9951-E48428EDD34E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{5720E60F-2C47-4F9C-AEEE-9C27AF0E4FE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LdifHelper.Samples.Reading", "samples\LdifHelper.Samples.Reading\LdifHelper.Samples.Reading.csproj", "{89F90EFD-1821-4749-A9CC-65E49DCE13EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LdifHelper.Samples.Writing", "samples\LdifHelper.Samples.Writing\LdifHelper.Samples.Writing.csproj", "{80FE0BC4-979F-4155-AF69-2EB2922FFFF4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA954513-757C-4A2E-B5B0-C4AAE22BE2D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA954513-757C-4A2E-B5B0-C4AAE22BE2D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA954513-757C-4A2E-B5B0-C4AAE22BE2D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA954513-757C-4A2E-B5B0-C4AAE22BE2D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22279C7C-BD2E-4657-9951-E48428EDD34E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22279C7C-BD2E-4657-9951-E48428EDD34E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22279C7C-BD2E-4657-9951-E48428EDD34E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22279C7C-BD2E-4657-9951-E48428EDD34E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89F90EFD-1821-4749-A9CC-65E49DCE13EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89F90EFD-1821-4749-A9CC-65E49DCE13EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89F90EFD-1821-4749-A9CC-65E49DCE13EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89F90EFD-1821-4749-A9CC-65E49DCE13EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80FE0BC4-979F-4155-AF69-2EB2922FFFF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80FE0BC4-979F-4155-AF69-2EB2922FFFF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80FE0BC4-979F-4155-AF69-2EB2922FFFF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80FE0BC4-979F-4155-AF69-2EB2922FFFF4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FA954513-757C-4A2E-B5B0-C4AAE22BE2D5} = {163F5BDB-43F7-46AA-B1C4-011C62B3436A}
+		{22279C7C-BD2E-4657-9951-E48428EDD34E} = {8890CC49-AEB8-4389-BC0D-B84A3F8055B3}
+		{89F90EFD-1821-4749-A9CC-65E49DCE13EC} = {5720E60F-2C47-4F9C-AEEE-9C27AF0E4FE3}
+		{80FE0BC4-979F-4155-AF69-2EB2922FFFF4} = {5720E60F-2C47-4F9C-AEEE-9C27AF0E4FE3}
+	EndGlobalSection
+EndGlobal
