@@ -223,22 +223,25 @@ namespace LdifHelper
 
             StringBuilder stringBuilder = new StringBuilder();
 
-            int startIndex = 0;
-
-            for (int i = 0; i < value.Length; i += Constants.MaxLineLength)
+            var startIndex = 0;
+            var maxLen = value.Length;
+            var wrapLen = Constants.MaxLineLength - 1;
+            while (startIndex < maxLen)
             {
-                if (i > 0)
+                int len;
+                if (startIndex > 0)
                 {
                     // Subtract 1 from all but the first line to accommodate leading space.
                     stringBuilder.AppendFormat("{0} ", Environment.NewLine);
-                    stringBuilder.Append(value.Substring(startIndex, Math.Min(Constants.MaxLineLength - 1, value.Length - startIndex)));
-                    startIndex += Constants.MaxLineLength - 1;
+                    len = Math.Min(wrapLen, maxLen - startIndex);
                 }
                 else
                 {
-                    stringBuilder.Append(value.Substring(startIndex, Math.Min(Constants.MaxLineLength, value.Length - startIndex)));
-                    startIndex += Constants.MaxLineLength;
+                    len = Math.Min(Constants.MaxLineLength, maxLen - startIndex);
                 }
+
+                stringBuilder.Append(value.Substring(startIndex, len));
+                startIndex += len;
             }
 
             return stringBuilder.ToString();
