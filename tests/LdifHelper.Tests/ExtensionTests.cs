@@ -341,5 +341,33 @@ namespace LdifHelper.Tests
                 Assert.True(line.Length <= Constants.MaxLineLength);
             }
         }
+
+        /// <summary>
+        /// Ensures the <see cref="Extensions.Wrap"/> extension method correctly processes strings of various lengths.
+        /// </summary>
+        [Fact]
+        public void WrapIsValid()
+        {
+            var generator = new Random();
+
+            for (int i = 0; i < 4000; i++)
+            {
+                // Arrange.
+                var bytes = new byte[i];
+                generator.NextBytes(bytes);
+                var data = $"wrap:: {bytes.ToBase64()}";
+
+                // Act.
+                var sut = data.Wrap().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                var stringBuilder = new StringBuilder();
+                foreach (string line in sut)
+                {
+                    stringBuilder.Append(line.TrimStart());
+                }
+
+                // Assert.
+                Assert.Equal(data, stringBuilder.ToString());
+            }
+        }
     }
 }
