@@ -360,9 +360,20 @@ namespace LdifHelper.Tests
                 // Act.
                 var sut = data.Wrap().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
                 var stringBuilder = new StringBuilder();
-                foreach (string line in sut)
+
+                if (sut.Length > 0)
                 {
-                    stringBuilder.Append(line.TrimStart());
+                    stringBuilder.Append(sut[0]);
+                }
+
+                for (int j = 1; j < sut.Length; j++)
+                {
+                    var line = sut[j];
+                    if (line.Length > 1)
+                    {
+                        // Trim only the leading whitespace added by Wrap().
+                        stringBuilder.Append(line.Substring(1));
+                    }
                 }
 
                 // Assert.
