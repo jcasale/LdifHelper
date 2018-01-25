@@ -21,7 +21,7 @@ internal class Program
         // Open and parse an ASCII encoded file. Use 1252 when reading Microsoft's ldifde.exe output.
         using (TextReader textReader = new StreamReader("input.ldif", Encoding.GetEncoding(20127), false))
         {
-            foreach (IChangeRecord changeRecord in new LdifReader(textReader))
+            foreach (IChangeRecord changeRecord in LdifReader.Parse(textReader))
             {
                 if (changeRecord is ChangeAdd changeAdd)
                 {

@@ -8,7 +8,6 @@
 namespace LdifHelper
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
@@ -16,7 +15,7 @@ namespace LdifHelper
     /// <summary>
     /// Represents a class for reading RFC 2849 LDIF files.
     /// </summary>
-    public class LdifReader : IEnumerable<IChangeRecord>
+    public class LdifReader
     {
         /// <summary>
         /// Represents data for a change-add record.
@@ -59,11 +58,6 @@ namespace LdifHelper
         private string distinguishedName;
 
         /// <summary>
-        /// Indicates whether the instance has read from the text reader already.
-        /// </summary>
-        private bool enumerated;
-
-        /// <summary>
         /// Indicates the current line number being parsed by the reader.
         /// </summary>
         private int lineNumber;
@@ -83,29 +77,304 @@ namespace LdifHelper
         /// </summary>
         /// <param name="textReader">The text reader instance to consume.</param>
         /// <param name="uriEnabled"><b>true</b> if URI value-spec entries are allowed, otherwise <b>false</b> to disable and throw if encountered.</param>
-        public LdifReader(TextReader textReader, bool uriEnabled = false)
+        private LdifReader(TextReader textReader, bool uriEnabled)
         {
             this.textReader = textReader ?? throw new ArgumentNullException(nameof(textReader));
             this.uriEnabled = uriEnabled;
         }
 
         /// <summary>
-        /// Gets the current line number being parsed by the reader.
+        /// Parses a text reader stream for LDIF change records.
         /// </summary>
-        /// <value>The current line number being parsed by the reader.</value>
-        public int LineNumber => this.lineNumber;
+        /// <param name="textReader">The text reader instance to consume.</param>
+        /// <param name="uriEnabled"><b>true</b> if URI value-spec entries are allowed, otherwise <b>false</b> to disable and throw if encountered.</param>
+        /// <returns>A collection of change records.</returns>
+        public static IEnumerable<IChangeRecord> Parse(TextReader textReader, bool uriEnabled = false)
+        {
+            LdifReader ldifReader = new LdifReader(textReader, uriEnabled);
 
-        /// <summary>
-        /// Returns an enumerator that reads through an RFC 2849 LDIF representation from a <see cref="TextReader"/> instance.
-        /// </summary>
-        /// <returns>An IEnumerator{IChangeRecord} that can be used to iterate through the collection.</returns>
-        public IEnumerator<IChangeRecord> GetEnumerator() => this.ParseFile();
+            string line;
+            int c;
 
-        /// <summary>
-        /// Returns an enumerator that reads through the LDIF file and generates LDIF records for each entry.
-        /// </summary>
-        /// <returns>An IEnumerator that can be used to iterate through the collection.</returns>
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+            // Skip any leading comments or newlines, note that leading newlines violates the RFC2849 spec (see the LDIF-file definition).
+            while (true)
+            {
+                c = ldifReader.textReader.Peek();
+                if (c == '#' || c == '\r' || c == '\n')
+                {
+                    ldifReader.textReader.ReadLine();
+                    ldifReader.lineNumber++;
+
+                    continue;
+                }
+
+                break;
+            }
+
+            // Consume a line only if its likely to be a version-spec, otherwise throw as it can't be a distinguished name.
+            c = ldifReader.textReader.Peek();
+            if (c == 'v' || c == 'V')
+            {
+                line = ldifReader.textReader.ReadLine();
+                ldifReader.lineNumber++;
+
+                // Ensure the first line is a version-spec or start of record.
+                if (line.StartsWith("version:", StringComparison.OrdinalIgnoreCase))
+                {
+                    ldifReader.ParseLine(line, out string _, out object attributeValue);
+
+                    if (!int.TryParse(attributeValue as string, out int version)
+                        || version != 1)
+                    {
+                        throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid LDIF version spec: \"{line}\".");
+                    }
+                }
+                else
+                {
+                    throw new LdifReaderException($"Line {ldifReader.lineNumber}: LDIF file must begin with version-spec or a record.");
+                }
+            }
+
+            // Consume the LDIF file.
+            while (true)
+            {
+                line = ldifReader.textReader.ReadLine();
+                ldifReader.lineNumber++;
+
+                // Detect end of entry and skip consecutive empty lines.
+                if (line == null
+                    || line.Equals(string.Empty))
+                {
+                    if (ldifReader.changeType != ChangeType.None)
+                    {
+                        yield return ldifReader.CloseEntry();
+                    }
+
+                    if (line == null)
+                    {
+                        yield break;
+                    }
+
+                    continue;
+                }
+
+                // Skip comments and control statements.
+                if (line.StartsWith("#")
+                    || line.StartsWith("control:", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Process entry.
+                switch (ldifReader.changeType)
+                {
+                    case ChangeType.None:
+                        // Detect start of new entry and assign distinguished name.
+                        if (ldifReader.distinguishedName == null)
+                        {
+                            if (line.StartsWith("dn:", StringComparison.OrdinalIgnoreCase))
+                            {
+                                while (ldifReader.textReader.Peek() == ' ')
+                                {
+                                    line += ldifReader.textReader.ReadLine().Substring(1);
+                                    ldifReader.lineNumber++;
+                                }
+
+                                ldifReader.ParseLine(line, out string _, out object dnValue);
+
+                                if (dnValue is string dnString)
+                                {
+                                    ldifReader.distinguishedName = dnString;
+                                }
+                                else if (dnValue is byte[] dnBytes)
+                                {
+                                    try
+                                    {
+                                        // Data for a distinguished name that is encoded is expected to be UTF8.
+                                        ldifReader.distinguishedName = ldifReader.encodingUtf8.GetString(dnBytes);
+                                    }
+                                    catch (ArgumentException e)
+                                    {
+                                        throw new LdifReaderException($"Line {ldifReader.lineNumber}: Failed to decode distinguished name.", e);
+                                    }
+                                }
+                                else
+                                {
+                                    throw new LdifReaderException($"Line {ldifReader.lineNumber}: Unknown distinguished name type, \"{dnValue.GetType()}\".");
+                                }
+
+                                if (string.IsNullOrWhiteSpace(ldifReader.distinguishedName))
+                                {
+                                    throw new LdifReaderException($"Line {ldifReader.lineNumber}: Distinguished name is empty.");
+                                }
+
+                                break;
+                            }
+
+                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: A new entry was not initialized with a distinguished name.");
+                        }
+
+                        // Detect change type if specified.
+                        if (line.StartsWith("changetype:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (line.Length > 12
+                                && Enum.TryParse(line.Substring(12), true, out ldifReader.changeType))
+                            {
+                                break;
+                            }
+
+                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid changetype specified.");
+                        }
+
+                        // Implicit add type.
+                        ldifReader.changeType = ChangeType.Add;
+                        goto case ChangeType.Add;
+
+                    case ChangeType.Add:
+                        // Unfold any wrapped value-spec lines.
+                        while (ldifReader.textReader.Peek() == ' ')
+                        {
+                            line += ldifReader.textReader.ReadLine().Substring(1);
+                            ldifReader.lineNumber++;
+                        }
+
+                        ldifReader.ParseLine(line, out string addAttributeType, out object addAttributeValue);
+
+                        ldifReader.attributes.AddOrAppend(addAttributeType, addAttributeValue);
+
+                        break;
+
+                    case ChangeType.Delete:
+                        // No additional processing needed for a delete entry.
+
+                        break;
+
+                    case ChangeType.ModRdn:
+                    case ChangeType.ModDn:
+                        // Unfold any wrapped moddn lines.
+                        while (ldifReader.textReader.Peek() == ' ')
+                        {
+                            line += ldifReader.textReader.ReadLine().Substring(1);
+                            ldifReader.lineNumber++;
+                        }
+
+                        string moddnString;
+                        ldifReader.ParseLine(line, out string moddnType, out object moddnValue);
+                        if (moddnValue is string s)
+                        {
+                            moddnString = s;
+                        }
+                        else if (moddnValue is byte[] b)
+                        {
+                            try
+                            {
+                                // Data for a newrdn or newsuperior that is encoded is expected to be UTF8.
+                                moddnString = ldifReader.encodingUtf8.GetString(b);
+                            }
+                            catch (ArgumentException e)
+                            {
+                                throw new LdifReaderException($"Line {ldifReader.lineNumber}: Failed to decode {moddnType}.", e);
+                            }
+                        }
+                        else
+                        {
+                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Unknown {moddnType} type, \"{moddnValue.GetType()}\".");
+                        }
+
+                        // Apply change-moddn statements.
+                        switch (moddnType.ToUpperInvariant())
+                        {
+                            case "NEWRDN":
+                                ldifReader.newRdn = moddnString;
+
+                                break;
+
+                            case "DELETEOLDRDN":
+                                if (!int.TryParse(moddnString, out ldifReader.deleteOldRdn)
+                                    || !(ldifReader.deleteOldRdn == 0 || ldifReader.deleteOldRdn == 1))
+                                {
+                                    throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid deleteoldrdn value: \"{moddnString}\".");
+                                }
+
+                                break;
+
+                            case "NEWSUPERIOR":
+                                ldifReader.newSuperior = moddnString;
+
+                                break;
+
+                            default:
+                                throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid moddn entry: \"{moddnType}\".");
+                        }
+
+                        break;
+
+                    case ChangeType.Modify:
+                        // Unfold any wrapped value-spec lines.
+                        while (ldifReader.textReader.Peek() == ' ')
+                        {
+                            line += ldifReader.textReader.ReadLine().Substring(1);
+                            ldifReader.lineNumber++;
+                        }
+
+                        ldifReader.ParseLine(line, out string modSpecString, out object modSpecAttributeType);
+
+                        // Detect mod-spec.
+                        if (!Enum.TryParse(modSpecString, true, out ModSpecType modSpec))
+                        {
+                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid mod-spec in change-modify entry: \"{modSpecString}\".");
+                        }
+
+                        string modSpecAttributeTypeString = modSpecAttributeType as string;
+                        if (string.IsNullOrWhiteSpace(modSpecAttributeTypeString))
+                        {
+                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid attrval-spec in change-modify entry: \"{modSpecAttributeTypeString}\".");
+                        }
+
+                        // Consume all related entries up to SEP.
+                        List<object> values = new List<object>();
+                        while (ldifReader.textReader.Peek() != '-')
+                        {
+                            line = ldifReader.textReader.ReadLine();
+                            ldifReader.lineNumber++;
+
+                            if (string.IsNullOrWhiteSpace(line))
+                            {
+                                throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid changetype modify entry, unexpected empty line.");
+                            }
+
+                            while (ldifReader.textReader.Peek() == ' ')
+                            {
+                                line += ldifReader.textReader.ReadLine().Substring(1);
+                                ldifReader.lineNumber++;
+                            }
+
+                            ldifReader.ParseLine(line, out string modAttributeType, out object modAttributeValue);
+
+                            // Validate mod-spec.
+                            if (!modSpecAttributeTypeString.Equals(modAttributeType))
+                            {
+                                throw new LdifReaderException($"Line {ldifReader.lineNumber}: Inconsistent changetype modify entry, expected \"{modSpecAttributeTypeString}\" but found \"{modAttributeType}\".");
+                            }
+
+                            values.Add(modAttributeValue);
+                        }
+
+                        // Consume SEP.
+                        ldifReader.textReader.ReadLine();
+                        ldifReader.lineNumber++;
+
+                        // Complete modify entry.
+                        ldifReader.modifyEntries.Add(new ModSpec(modSpec, modSpecAttributeTypeString, values));
+
+                        break;
+
+                    default:
+
+                        throw new InvalidOperationException($"Line {ldifReader.lineNumber}: Unknown ChangeType: {ldifReader.changeType}.");
+                }
+            }
+        }
 
         /// <summary>
         /// Closes the active entry being parsed and builds the return record.
@@ -146,304 +415,6 @@ namespace LdifHelper
             finally
             {
                 this.ResetEntry();
-            }
-        }
-
-        /// <summary>
-        /// Parses the LDIF data generating change records.
-        /// </summary>
-        /// <returns>An IEnumerator of IChangeRecords.</returns>
-        private IEnumerator<IChangeRecord> ParseFile()
-        {
-            // Ensure a used text reader is not reread if the instance is misused.
-            if (this.enumerated)
-            {
-                throw new InvalidOperationException("Method has already been invoked.");
-            }
-
-            this.enumerated = true;
-
-            string line;
-            int c;
-
-            // Skip any leading comments or newlines, note that leading newlines violates the RFC2849 spec (see the LDIF-file definition).
-            while (true)
-            {
-                c = this.textReader.Peek();
-                if (c == '#' || c == '\r' || c == '\n')
-                {
-                    this.textReader.ReadLine();
-                    this.lineNumber++;
-
-                    continue;
-                }
-
-                break;
-            }
-
-            // Consume a line only if its likely to be a version-spec, otherwise throw as it can't be a distinguished name.
-            c = this.textReader.Peek();
-            if (c == 'v' || c == 'V')
-            {
-                line = this.textReader.ReadLine();
-                this.lineNumber++;
-
-                // Ensure the first line is a version-spec or start of record.
-                if (line.StartsWith("version:", StringComparison.OrdinalIgnoreCase))
-                {
-                    this.ParseLine(line, out string _, out object attributeValue);
-
-                    if (!int.TryParse(attributeValue as string, out int version)
-                        || version != 1)
-                    {
-                        throw new LdifReaderException($"Line {this.lineNumber}: Invalid LDIF version spec: \"{line}\".");
-                    }
-                }
-                else
-                {
-                    throw new LdifReaderException($"Line {this.lineNumber}: LDIF file must begin with version-spec or a record.");
-                }
-            }
-
-            // Consume the LDIF file.
-            while (true)
-            {
-                line = this.textReader.ReadLine();
-                this.lineNumber++;
-
-                // Detect end of entry and skip consecutive empty lines.
-                if (line == null
-                    || line.Equals(string.Empty))
-                {
-                    if (this.changeType != ChangeType.None)
-                    {
-                        yield return this.CloseEntry();
-                    }
-
-                    if (line == null)
-                    {
-                        yield break;
-                    }
-
-                    continue;
-                }
-
-                // Skip comments and control statements.
-                if (line.StartsWith("#")
-                    || line.StartsWith("control:", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                // Process entry.
-                switch (this.changeType)
-                {
-                    case ChangeType.None:
-                        // Detect start of new entry and assign distinguished name.
-                        if (this.distinguishedName == null)
-                        {
-                            if (line.StartsWith("dn:", StringComparison.OrdinalIgnoreCase))
-                            {
-                                while (this.textReader.Peek() == ' ')
-                                {
-                                    line += this.textReader.ReadLine().Substring(1);
-                                    this.lineNumber++;
-                                }
-
-                                this.ParseLine(line, out string _, out object dnValue);
-
-                                if (dnValue is string dnString)
-                                {
-                                    this.distinguishedName = dnString;
-                                }
-                                else if (dnValue is byte[] dnBytes)
-                                {
-                                    try
-                                    {
-                                        // Data for a distinguished name that is encoded is expected to be UTF8.
-                                        this.distinguishedName = this.encodingUtf8.GetString(dnBytes);
-                                    }
-                                    catch (ArgumentException e)
-                                    {
-                                        throw new LdifReaderException($"Line {this.lineNumber}: Failed to decode distinguished name.", e);
-                                    }
-                                }
-                                else
-                                {
-                                    throw new LdifReaderException($"Line {this.lineNumber}: Unknown distinguished name type, \"{dnValue.GetType()}\".");
-                                }
-
-                                if (string.IsNullOrWhiteSpace(this.distinguishedName))
-                                {
-                                    throw new LdifReaderException($"Line {this.lineNumber}: Distinguished name is empty.");
-                                }
-
-                                break;
-                            }
-
-                            throw new LdifReaderException($"Line {this.lineNumber}: A new entry was not initialized with a distinguished name.");
-                        }
-
-                        // Detect change type if specified.
-                        if (line.StartsWith("changetype:", StringComparison.OrdinalIgnoreCase))
-                        {
-                            if (line.Length > 12
-                                && Enum.TryParse(line.Substring(12), true, out this.changeType))
-                            {
-                                break;
-                            }
-
-                            throw new LdifReaderException($"Line {this.lineNumber}: Invalid changetype specified.");
-                        }
-
-                        // Implicit add type.
-                        this.changeType = ChangeType.Add;
-                        goto case ChangeType.Add;
-
-                    case ChangeType.Add:
-                        // Unfold any wrapped value-spec lines.
-                        while (this.textReader.Peek() == ' ')
-                        {
-                            line += this.textReader.ReadLine().Substring(1);
-                            this.lineNumber++;
-                        }
-
-                        this.ParseLine(line, out string addAttributeType, out object addAttributeValue);
-
-                        this.attributes.AddOrAppend(addAttributeType, addAttributeValue);
-
-                        break;
-
-                    case ChangeType.Delete:
-                        // No additional processing needed for a delete entry.
-
-                        break;
-
-                    case ChangeType.ModRdn:
-                    case ChangeType.ModDn:
-                        // Unfold any wrapped moddn lines.
-                        while (this.textReader.Peek() == ' ')
-                        {
-                            line += this.textReader.ReadLine().Substring(1);
-                            this.lineNumber++;
-                        }
-
-                        string moddnType;
-                        string moddnString;
-                        this.ParseLine(line, out moddnType, out object moddnValue);
-                        if (moddnValue is string s)
-                        {
-                            moddnString = s;
-                        }
-                        else if (moddnValue is byte[] b)
-                        {
-                            try
-                            {
-                                // Data for a newrdn or newsuperior that is encoded is expected to be UTF8.
-                                moddnString = this.encodingUtf8.GetString(b);
-                            }
-                            catch (ArgumentException e)
-                            {
-                                throw new LdifReaderException($"Line {this.lineNumber}: Failed to decode {moddnType}.", e);
-                            }
-                        }
-                        else
-                        {
-                            throw new LdifReaderException($"Line {this.lineNumber}: Unknown {moddnType} type, \"{moddnValue.GetType()}\".");
-                        }
-
-                        // Apply change-moddn statements.
-                        switch (moddnType.ToUpperInvariant())
-                        {
-                            case "NEWRDN":
-                                this.newRdn = moddnString;
-
-                                break;
-
-                            case "DELETEOLDRDN":
-                                if (!int.TryParse(moddnString, out this.deleteOldRdn)
-                                    || !(this.deleteOldRdn == 0 || this.deleteOldRdn == 1))
-                                {
-                                    throw new LdifReaderException($"Line {this.lineNumber}: Invalid deleteoldrdn value: \"{moddnString}\".");
-                                }
-
-                                break;
-
-                            case "NEWSUPERIOR":
-                                this.newSuperior = moddnString;
-
-                                break;
-
-                            default:
-                                throw new LdifReaderException($"Line {this.lineNumber}: Invalid moddn entry: \"{moddnType}\".");
-                        }
-
-                        break;
-
-                    case ChangeType.Modify:
-                        // Unfold any wrapped value-spec lines.
-                        while (this.textReader.Peek() == ' ')
-                        {
-                            line += this.textReader.ReadLine().Substring(1);
-                            this.lineNumber++;
-                        }
-
-                        this.ParseLine(line, out string modSpecString, out object modSpecAttributeType);
-
-                        // Detect mod-spec.
-                        if (!Enum.TryParse(modSpecString, true, out ModSpecType modSpec))
-                        {
-                            throw new LdifReaderException($"Line {this.lineNumber}: Invalid mod-spec in change-modify entry: \"{modSpecString}\".");
-                        }
-
-                        string modSpecAttributeTypeString = modSpecAttributeType as string;
-                        if (string.IsNullOrWhiteSpace(modSpecAttributeTypeString))
-                        {
-                            throw new LdifReaderException($"Line {this.lineNumber}: Invalid attrval-spec in change-modify entry: \"{modSpecAttributeTypeString}\".");
-                        }
-
-                        // Consume all related entries up to SEP.
-                        List<object> values = new List<object>();
-                        while (this.textReader.Peek() != '-')
-                        {
-                            line = this.textReader.ReadLine();
-                            this.lineNumber++;
-
-                            if (string.IsNullOrWhiteSpace(line))
-                            {
-                                throw new LdifReaderException($"Line {this.lineNumber}: Invalid changetype modify entry, unexpected empty line.");
-                            }
-
-                            while (this.textReader.Peek() == ' ')
-                            {
-                                line += this.textReader.ReadLine().Substring(1);
-                                this.lineNumber++;
-                            }
-
-                            this.ParseLine(line, out string modAttributeType, out object modAttributeValue);
-
-                            // Validate mod-spec.
-                            if (!modSpecAttributeTypeString.Equals(modAttributeType))
-                            {
-                                throw new LdifReaderException($"Line {this.lineNumber}: Inconsistent changetype modify entry, expected \"{modSpecAttributeTypeString}\" but found \"{modAttributeType}\".");
-                            }
-
-                            values.Add(modAttributeValue);
-                        }
-
-                        // Consume SEP.
-                        this.textReader.ReadLine();
-                        this.lineNumber++;
-
-                        // Complete modify entry.
-                        this.modifyEntries.Add(new ModSpec(modSpec, modSpecAttributeTypeString, values));
-
-                        break;
-
-                    default:
-
-                        throw new InvalidOperationException($"Line {this.lineNumber}: Unknown ChangeType: {this.changeType}.");
-                }
             }
         }
 
