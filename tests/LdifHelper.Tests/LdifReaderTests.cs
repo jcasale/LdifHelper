@@ -9,15 +9,18 @@ namespace LdifHelper.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using System.Text;
+    using FluentAssertions;
     using LdifHelper;
     using Xunit;
 
     /// <summary>
     /// Represents LDIF reader tests.
     /// </summary>
+    [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
     public class LdifReaderTests
     {
         /// <summary>
@@ -54,7 +57,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -98,7 +101,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -129,7 +132,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -159,11 +162,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -186,11 +186,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -221,11 +218,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Exception exception = Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Exception exception = Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
                 Assert.IsType<DecoderFallbackException>(exception.InnerException);
             }
         }
@@ -253,7 +247,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -294,11 +288,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Exception exception = Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Exception exception = Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
                 Assert.IsType<DecoderFallbackException>(exception.InnerException);
             }
         }
@@ -327,7 +318,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -361,7 +352,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -400,7 +391,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -446,7 +437,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -498,7 +489,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -542,7 +533,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -586,7 +577,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -628,7 +619,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -667,11 +658,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -694,11 +682,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -721,11 +706,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -749,11 +731,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -785,7 +764,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -818,11 +797,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -846,11 +822,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -873,11 +846,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -898,43 +868,14 @@ namespace LdifHelper.Tests
                 "objectclass: organizationalPerson",
                 string.Empty);
 
-
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
                 // Act.
-                LdifReader sut = new LdifReader(textReader);
+                IChangeRecord[] sut = LdifReader.Parse(textReader).ToArray();
 
                 // Assert.
                 Assert.Single(sut);
-                Assert.Equal(7, sut.LineNumber);
-            }
-        }
-
-        /// <summary>
-        /// Ensures the reader rejects a distinguished name with an invalid base64 encoding.
-        /// </summary>
-        [Fact]
-        public void RecordDistinguishedNameInvalidBase64Throws()
-        {
-            // Arrange.
-            string dump = string.Join(
-                Environment.NewLine,
-                "dn:: invalid",
-                "changetype: add",
-                "objectclass: top",
-                "objectclass: person",
-                "objectclass: organizationalPerson",
-                string.Empty);
-
-            using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
-            using (TextReader textReader = new StreamReader(memoryStream))
-            {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
             }
         }
 
@@ -957,24 +898,21 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
         /// <summary>
-        /// Ensures the reader rejects a white space distinguished name.
+        /// Ensures the reader rejects a distinguished name with an invalid base64 encoding.
         /// </summary>
         [Fact]
-        public void RecordDistinguishedNameWhiteSpaceThrows()
+        public void RecordDistinguishedNameInvalidBase64Throws()
         {
             // Arrange.
             string dump = string.Join(
                 Environment.NewLine,
-                "dn:  ",
+                "dn:: invalid",
                 "changetype: add",
                 "objectclass: top",
                 "objectclass: person",
@@ -984,11 +922,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -1018,12 +953,13 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
+                Action action = () => LdifReader.Parse(textReader).ToArray();
 
-                // Assert.
-                Exception exception = Assert.Throws<LdifReaderException>(() => sut.ToArray());
-                Assert.IsType<DecoderFallbackException>(exception.InnerException);
+                // Act and Assert.
+                action
+                    .Should()
+                    .Throw<LdifReaderException>()
+                    .WithInnerException<DecoderFallbackException>();
             }
         }
 
@@ -1052,7 +988,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -1082,11 +1018,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -1108,11 +1041,32 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
+            }
+        }
 
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+        /// <summary>
+        /// Ensures the reader rejects a white space distinguished name.
+        /// </summary>
+        [Fact]
+        public void RecordDistinguishedNameWhiteSpaceThrows()
+        {
+            // Arrange.
+            string dump = string.Join(
+                Environment.NewLine,
+                "dn:  ",
+                "changetype: add",
+                "objectclass: top",
+                "objectclass: person",
+                "objectclass: organizationalPerson",
+                string.Empty);
+
+            using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
+            using (TextReader textReader = new StreamReader(memoryStream))
+            {
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -1140,12 +1094,13 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader, true);
+                Action action = () => LdifReader.Parse(textReader, true).ToArray();
 
-                // Assert.
-                Exception exception = Assert.Throws<LdifReaderException>(() => sut.ToArray());
-                Assert.IsType<FileNotFoundException>(exception.InnerException);
+                // Act and Assert.
+                action
+                    .Should()
+                    .Throw<LdifReaderException>()
+                    .WithInnerException<FileNotFoundException>();
             }
         }
 
@@ -1169,12 +1124,13 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader, true);
+                Action action = () => LdifReader.Parse(textReader, true).ToArray();
 
-                // Assert.
-                Exception exception = Assert.Throws<LdifReaderException>(() => sut.ToArray());
-                Assert.IsType<UriFormatException>(exception.InnerException);
+                // Act and Assert.
+                action
+                    .Should()
+                    .Throw<LdifReaderException>()
+                    .WithInnerException<UriFormatException>();
             }
         }
 
@@ -1205,12 +1161,13 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader, true);
+                Action action = () => LdifReader.Parse(textReader, true).ToArray();
 
-                // Assert.
-                Exception exception = Assert.Throws<LdifReaderException>(() => sut.ToArray());
-                Assert.IsType<DecoderFallbackException>(exception.InnerException);
+                // Act and Assert.
+                action
+                    .Should()
+                    .Throw<LdifReaderException>()
+                    .WithInnerException<DecoderFallbackException>();
             }
         }
 
@@ -1234,40 +1191,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
-            }
-        }
-
-        /// <summary>
-        /// Ensures the reader prohibits re-enumeration.
-        /// </summary>
-        [Fact]
-        public void ReEnumerationThrows()
-        {
-            // Arrange.
-            string dump = string.Join(
-                Environment.NewLine,
-                "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
-                "changetype: add",
-                "objectclass: top",
-                "objectclass: person",
-                "objectclass: organizationalPerson",
-                string.Empty);
-
-            using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
-            using (TextReader textReader = new StreamReader(memoryStream))
-            {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Single(sut);
-
-                Assert.Throws<InvalidOperationException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -1315,7 +1240,7 @@ namespace LdifHelper.Tests
                 using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
                 using (TextReader textReader = new StreamReader(memoryStream))
                 {
-                    records.AddRange(new LdifReader(textReader, true));
+                    records.AddRange(LdifReader.Parse(textReader, true));
                 }
 
                 Assert.Single(records);
@@ -1381,7 +1306,7 @@ namespace LdifHelper.Tests
                 using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
                 using (TextReader textReader = new StreamReader(memoryStream))
                 {
-                    records.AddRange(new LdifReader(textReader, true));
+                    records.AddRange(LdifReader.Parse(textReader, true));
                 }
 
                 Assert.Single(records);
@@ -1450,7 +1375,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                sut.AddRange(new LdifReader(textReader));
+                sut.AddRange(LdifReader.Parse(textReader));
             }
 
             // Assert.
@@ -1487,7 +1412,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -1523,7 +1448,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -1565,7 +1490,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -1606,7 +1531,7 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                records.AddRange(new LdifReader(textReader));
+                records.AddRange(LdifReader.Parse(textReader));
             }
 
             Assert.Single(records);
@@ -1637,11 +1562,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
 
@@ -1650,7 +1572,7 @@ namespace LdifHelper.Tests
         /// </summary>
         [Fact]
         public void TextReaderInvalidThrows()
-            => Assert.Throws<ArgumentNullException>(() => new LdifReader(null));
+            => Assert.Throws<ArgumentNullException>(() => LdifReader.Parse(null).ToArray());
 
         /// <summary>
         /// Ensures the reader rejects an invalid version declaration.
@@ -1672,11 +1594,8 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                // Act.
-                LdifReader sut = new LdifReader(textReader);
-
-                // Assert.
-                Assert.Throws<LdifReaderException>(() => sut.ToArray());
+                // Act, Assert.
+                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
             }
         }
     }
