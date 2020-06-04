@@ -639,10 +639,10 @@ namespace LdifHelper.Tests
         }
 
         /// <summary>
-        /// Ensures the reader rejects a change-modify with an unexpected empty line.
+        /// Ensures the reader does not reject a change-modify with an empty line.
         /// </summary>
         [Fact]
-        public void ChangeModifyEmptyLineThrows()
+        public void ChangeModifyEmptyLineDoesNotThrow()
         {
             // Arrange.
             string dump = string.Join(
@@ -651,16 +651,107 @@ namespace LdifHelper.Tests
                 "changetype: modify",
                 "add: postaladdress",
                 "postaladdress: 2400 Fulton St, San Francisco, CA 94118, USA",
-                string.Empty,
-                "-",
                 string.Empty);
 
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
                 // Act, Assert.
-                Assert.Throws<LdifReaderException>(() => LdifReader.Parse(textReader).ToArray());
+                Assert.Single(LdifReader.Parse(textReader).ToArray());
             }
+        }
+
+        /// <summary>
+        /// Ensures the reader allows single change-modify entries.
+        /// </summary>
+        [Fact]
+        public void ShouldConsumeSingleChangeModifyWithSpecialCharacter()
+        {
+            // Arrange.
+            string dump = string.Join(
+                Environment.NewLine,
+                "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+                "changetype: modify",
+                "add: description",
+                "description: <description>",
+                string.Empty,
+                string.Empty);
+
+            // Act.
+            List<IChangeRecord> sut = new List<IChangeRecord>();
+
+            using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
+            using (TextReader textReader = new StreamReader(memoryStream))
+            {
+                sut.AddRange(LdifReader.Parse(textReader));
+            }
+
+            // Assert.
+            Assert.Equal(1, sut.Count);
+        }
+
+        /// <summary>
+        /// Ensures the reader allows single change-modify entries without hyphen line separators.
+        /// </summary>
+        [Fact]
+        public void ShouldConsumeSingleChangeModifyWithoutHyphen()
+        {
+            // Arrange.
+            string dump = string.Join(
+                Environment.NewLine,
+                "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+                "changetype: modify",
+                "add: description",
+                "description: another updated description",
+                string.Empty,
+                string.Empty);
+
+            // Act.
+            List<IChangeRecord> sut = new List<IChangeRecord>();
+
+            using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
+            using (TextReader textReader = new StreamReader(memoryStream))
+            {
+                sut.AddRange(LdifReader.Parse(textReader));
+            }
+
+            // Assert.
+            Assert.Equal(1, sut.Count);
+        }
+
+        /// <summary>
+        /// Ensures the reader allows multiple change-modify entries without hyphen line separators.
+        /// </summary>
+        [Fact]
+        public void ShouldConsumeMultipleChangeModifyWithoutHyphenLineSeparators()
+        {
+            // Arrange.
+            string dump = string.Join(
+                Environment.NewLine,
+                "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+                "changetype: modify",
+                "add: description",
+                "description: another updated description",
+                string.Empty,
+                string.Empty,
+                "dn: CN=Niklaus Wirth,OU=users,DC=company,DC=com",
+                "changetype: modify",
+                "add: description",
+                "description: description update",
+                string.Empty,
+                string.Empty);
+
+            // Act.
+            List<IChangeRecord> sut = new List<IChangeRecord>();
+
+            using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
+            using (TextReader textReader = new StreamReader(memoryStream))
+            {
+                sut.AddRange(LdifReader.Parse(textReader));
+            }
+
+            // Assert.
+            Assert.Equal(2, sut.Count);
         }
 
         /// <summary>
