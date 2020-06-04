@@ -340,6 +340,7 @@ namespace LdifHelper
 
                             if (string.IsNullOrWhiteSpace(line))
                             {
+                                break;
                                 throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid changetype modify entry, unexpected empty line.");
                             }
 
@@ -361,8 +362,11 @@ namespace LdifHelper
                         }
 
                         // Consume SEP.
-                        ldifReader.textReader.ReadLine();
-                        ldifReader.lineNumber++;
+                        if (!string.IsNullOrWhiteSpace(line))
+                        {
+                            ldifReader.textReader.ReadLine();
+                            ldifReader.lineNumber++;
+                        }
 
                         // Complete modify entry.
                         ldifReader.modifyEntries.Add(new ModSpec(modSpec, modSpecAttributeTypeString, values));
