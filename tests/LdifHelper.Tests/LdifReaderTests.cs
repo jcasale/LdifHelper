@@ -13,7 +13,6 @@ namespace LdifHelper.Tests
     using System.IO;
     using System.Linq;
     using System.Text;
-    using FluentAssertions;
     using LdifHelper;
     using Xunit;
 
@@ -953,13 +952,11 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                Action action = () => LdifReader.Parse(textReader).ToArray();
+                var exception = Record.Exception(() => LdifReader.Parse(textReader).ToArray());
 
-                // Act and Assert.
-                action
-                    .Should()
-                    .Throw<LdifReaderException>()
-                    .WithInnerException<DecoderFallbackException>();
+                Assert.NotNull(exception);
+                Assert.IsType<LdifReaderException>(exception);
+                Assert.IsType<DecoderFallbackException>(exception.InnerException);
             }
         }
 
@@ -1094,13 +1091,11 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                Action action = () => LdifReader.Parse(textReader, true).ToArray();
+                var exception = Record.Exception(() => LdifReader.Parse(textReader, true).ToArray());
 
-                // Act and Assert.
-                action
-                    .Should()
-                    .Throw<LdifReaderException>()
-                    .WithInnerException<FileNotFoundException>();
+                Assert.NotNull(exception);
+                Assert.IsType<LdifReaderException>(exception);
+                Assert.IsType<FileNotFoundException>(exception.InnerException);
             }
         }
 
@@ -1124,13 +1119,11 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                Action action = () => LdifReader.Parse(textReader, true).ToArray();
+                var exception = Record.Exception(() => LdifReader.Parse(textReader, true).ToArray());
 
-                // Act and Assert.
-                action
-                    .Should()
-                    .Throw<LdifReaderException>()
-                    .WithInnerException<UriFormatException>();
+                Assert.NotNull(exception);
+                Assert.IsType<LdifReaderException>(exception);
+                Assert.IsType<UriFormatException>(exception.InnerException);
             }
         }
 
@@ -1161,13 +1154,11 @@ namespace LdifHelper.Tests
             using (MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(dump)))
             using (TextReader textReader = new StreamReader(memoryStream))
             {
-                Action action = () => LdifReader.Parse(textReader, true).ToArray();
+                var exception = Record.Exception(() => LdifReader.Parse(textReader, true).ToArray());
 
-                // Act and Assert.
-                action
-                    .Should()
-                    .Throw<LdifReaderException>()
-                    .WithInnerException<DecoderFallbackException>();
+                Assert.NotNull(exception);
+                Assert.IsType<LdifReaderException>(exception);
+                Assert.IsType<DecoderFallbackException>(exception.InnerException);
             }
         }
 
