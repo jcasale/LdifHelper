@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\common.props" />
-
   <PropertyGroup>
     <AssemblyTitle>LdifHelper</AssemblyTitle>
     <AssemblyName>LdifHelper</AssemblyName>
@@ -15,8 +13,25 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Product>LdifHelper</Product>
+    <Description>A library for reading and writing RFC 2849 LDIF files.</Description>
+    <Copyright>Joseph L. Casale</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Authors>Joseph L. Casale</Authors>
+    <PackageTags>ldap;ldif</PackageTags>
+    <PackageProjectUrl>https://github.com/jcasale/LdifHelper</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <CLSCompliant>true</CLSCompliant>
+    <ComVisible>false</ComVisible>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
