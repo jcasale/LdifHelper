@@ -6,8 +6,8 @@
     <RootNamespace>LdifHelper</RootNamespace>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <PackageId>LdifHelper</PackageId>
-    <Version>2.0.0</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <Version>2.1.0</Version>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
