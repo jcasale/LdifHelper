@@ -40,18 +40,18 @@ namespace LdifHelper.Tests
 
             input.AddOrAppend("keyA", new object[] { "value" });
 
-            Assert.Equal(1, input.Keys.Count);
-            Assert.Equal(1, input["keyA"].Count);
+            Assert.Single(input.Keys);
+            Assert.Single(input["keyA"]);
 
             input.AddOrAppend("keyA", new object[] { "value" });
 
-            Assert.Equal(1, input.Keys.Count);
+            Assert.Single(input.Keys);
             Assert.Equal(2, input["keyA"].Count);
 
             input.AddOrAppend("keyB", new object[] { "value" });
 
             Assert.Equal(2, input.Keys.Count);
-            Assert.Equal(1, input["keyB"].Count);
+            Assert.Single(input["keyB"]);
         }
 
         /// <summary>

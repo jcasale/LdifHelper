@@ -72,8 +72,8 @@ namespace LdifHelper.Tests
             LdifAttribute sutEmptyValue = new LdifAttribute(attributeType, null);
 
             // Assert.
-            Assert.Equal(1, sutSingleValue.Count);
-            Assert.Equal(0, sutEmptyValue.Count);
+            Assert.Single(sutSingleValue);
+            Assert.Empty(sutEmptyValue);
         }
 
         /// <summary>
