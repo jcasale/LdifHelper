@@ -51,7 +51,7 @@ namespace LdifHelper
         /// <returns>The RFC2849 LDIF string representation for the record.</returns>
         public string Dump()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.distinguishedName).Wrap());
             stringBuilder.AppendLine("changetype: delete");
 

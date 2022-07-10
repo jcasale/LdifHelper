@@ -50,7 +50,7 @@ namespace LdifHelper
 
             if (ldifAttributes != null)
             {
-                foreach (LdifAttribute ldapAttribute in ldifAttributes)
+                foreach (var ldapAttribute in ldifAttributes)
                 {
                     this.ldifAttributes.Add(ldapAttribute.AttributeType, ldapAttribute);
                 }
@@ -100,12 +100,12 @@ namespace LdifHelper
         /// <returns>The RFC2849 LDIF string representation for the record.</returns>
         public string Dump()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.distinguishedName).Wrap());
 
-            foreach (LdifAttribute ldapAttribute in this)
+            foreach (var ldapAttribute in this)
             {
-                foreach (object value in ldapAttribute)
+                foreach (var value in ldapAttribute)
                 {
                     stringBuilder.AppendLine(Extensions.GetValueSpec(ldapAttribute.AttributeType, value).Wrap());
                 }

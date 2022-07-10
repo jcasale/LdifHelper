@@ -77,13 +77,13 @@ namespace LdifHelper
             }
 
             // Calculate the existing rdn.
-            string[] components = Constants.DistinguishedNameRegex.Split(distinguishedName);
+            var components = Constants.DistinguishedNameRegex.Split(distinguishedName);
             if (components.Length < 2)
             {
                 throw new ArgumentException("The distinguished name is invalid.", nameof(distinguishedName));
             }
 
-            string rdn = components[0];
+            var rdn = components[0];
 
             // Validate potential invalid change scenarios.
             if (string.IsNullOrWhiteSpace(newRdn))
@@ -134,7 +134,7 @@ namespace LdifHelper
         /// <returns>The RFC2849 LDIF string representation for the record.</returns>
         public string Dump()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.distinguishedName).Wrap());
             stringBuilder.AppendLine("changetype: modrdn");
             stringBuilder.AppendLine(Extensions.GetValueSpec("newrdn", this.newRdn).Wrap());

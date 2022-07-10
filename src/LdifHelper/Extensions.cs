@@ -45,7 +45,7 @@ namespace LdifHelper
                 throw new ArgumentNullException(nameof(value), "The dictionary value can not be null.");
             }
 
-            if (input.TryGetValue(key, out List<object> values))
+            if (input.TryGetValue(key, out var values))
             {
                 values.Add(value);
             }
@@ -84,7 +84,7 @@ namespace LdifHelper
 
             if (value is string s)
             {
-                bool encode = false;
+                var encode = false;
                 if (!s.IsSafeInitChar())
                 {
                     encode = true;
@@ -152,7 +152,7 @@ namespace LdifHelper
             }
 
             // RFC2849 note 4.
-            HashSet<int> chars = new HashSet<int>(value.Select(x => (int)x));
+            var chars = new HashSet<int>(value.Select(x => (int)x));
 
             return chars.IsSubsetOf(Constants.SafeAsciiChars);
         }
@@ -169,8 +169,8 @@ namespace LdifHelper
                 throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
             }
 
-            byte[] utf16Bytes = Encoding.Unicode.GetBytes(value);
-            byte[] utf8Bytes = Encoding.Convert(Encoding.Unicode, Encoding.UTF8, utf16Bytes);
+            var utf16Bytes = Encoding.Unicode.GetBytes(value);
+            var utf8Bytes = Encoding.Convert(Encoding.Unicode, Encoding.UTF8, utf16Bytes);
 
             return Convert.ToBase64String(utf8Bytes);
         }
@@ -203,7 +203,7 @@ namespace LdifHelper
                 throw new ArgumentNullException(nameof(input));
             }
 
-            foreach (KeyValuePair<string, List<object>> kvp in input)
+            foreach (var kvp in input)
             {
                 yield return new LdifAttribute(kvp.Key, kvp.Value);
             }
@@ -221,7 +221,7 @@ namespace LdifHelper
                 throw new ArgumentNullException(nameof(value));
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
 
             var startIndex = 0;
             var maxLen = value.Length;

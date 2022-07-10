@@ -91,7 +91,7 @@ namespace LdifHelper
         /// <returns>A collection of change records.</returns>
         public static IEnumerable<IChangeRecord> Parse(TextReader textReader, bool uriEnabled = false)
         {
-            LdifReader ldifReader = new LdifReader(textReader, uriEnabled);
+            var ldifReader = new LdifReader(textReader, uriEnabled);
 
             string line;
             int c;
@@ -121,9 +121,9 @@ namespace LdifHelper
                 // Ensure the first line is a version-spec or start of record.
                 if (line.StartsWith("version:", StringComparison.OrdinalIgnoreCase))
                 {
-                    ldifReader.ParseLine(line, out string _, out object attributeValue);
+                    ldifReader.ParseLine(line, out _, out var attributeValue);
 
-                    if (!int.TryParse(attributeValue as string, out int version)
+                    if (!int.TryParse(attributeValue as string, out var version)
                         || version != 1)
                     {
                         throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid LDIF version spec: \"{line}\".");
@@ -180,7 +180,7 @@ namespace LdifHelper
                                     ldifReader.lineNumber++;
                                 }
 
-                                ldifReader.ParseLine(line, out string _, out object dnValue);
+                                ldifReader.ParseLine(line, out var _, out var dnValue);
 
                                 if (dnValue is string dnString)
                                 {
@@ -238,7 +238,7 @@ namespace LdifHelper
                             ldifReader.lineNumber++;
                         }
 
-                        ldifReader.ParseLine(line, out string addAttributeType, out object addAttributeValue);
+                        ldifReader.ParseLine(line, out var addAttributeType, out var addAttributeValue);
 
                         ldifReader.attributes.AddOrAppend(addAttributeType, addAttributeValue);
 
@@ -259,7 +259,7 @@ namespace LdifHelper
                         }
 
                         string moddnString;
-                        ldifReader.ParseLine(line, out string moddnType, out object moddnValue);
+                        ldifReader.ParseLine(line, out var moddnType, out var moddnValue);
                         if (moddnValue is string s)
                         {
                             moddnString = s;
@@ -317,7 +317,7 @@ namespace LdifHelper
                             ldifReader.lineNumber++;
                         }
 
-                        ldifReader.ParseLine(line, out string modSpecString, out object modSpecAttributeType);
+                        ldifReader.ParseLine(line, out var modSpecString, out var modSpecAttributeType);
 
                         // Detect mod-spec.
                         if (!Enum.TryParse(modSpecString, true, out ModSpecType modSpec))
@@ -325,14 +325,14 @@ namespace LdifHelper
                             throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid mod-spec in change-modify entry: \"{modSpecString}\".");
                         }
 
-                        string modSpecAttributeTypeString = modSpecAttributeType as string;
+                        var modSpecAttributeTypeString = modSpecAttributeType as string;
                         if (string.IsNullOrWhiteSpace(modSpecAttributeTypeString))
                         {
                             throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid attrval-spec in change-modify entry: \"{modSpecAttributeTypeString}\".");
                         }
 
                         // Consume all related entries up to SEP.
-                        List<object> values = new List<object>();
+                        var values = new List<object>();
                         while (ldifReader.textReader.Peek() != '-')
                         {
                             line = ldifReader.textReader.ReadLine();
@@ -349,7 +349,7 @@ namespace LdifHelper
                                 ldifReader.lineNumber++;
                             }
 
-                            ldifReader.ParseLine(line, out string modAttributeType, out object modAttributeValue);
+                            ldifReader.ParseLine(line, out var modAttributeType, out var modAttributeValue);
 
                             // Validate mod-spec.
                             if (!modSpecAttributeTypeString.Equals(modAttributeType))
@@ -433,7 +433,7 @@ namespace LdifHelper
             }
 
             // Locate first occurrence of separator (empty string case previously validated).
-            int index = line.IndexOf(':');
+            var index = line.IndexOf(':');
 
             // Abort on missing separator.
             if (index == -1)
@@ -454,7 +454,7 @@ namespace LdifHelper
                 return;
             }
 
-            char nextChar = line[index];
+            var nextChar = line[index];
 
             // Check for an ASCII value-spec, "attribute: ASCII-value".
             if (nextChar == ' ')
@@ -472,13 +472,13 @@ namespace LdifHelper
             }
 
             // Check for an BASE64 value-spec, "attribute:: BASE64-value"
-            bool encoded = nextChar == ':';
+            var encoded = nextChar == ':';
 
             // Check for an URI value-spec, "attribute:< ASCII-value" or "attribute::< BASE64-value".
-            bool fileUri = encoded ? line[index] == '<' : nextChar == '<';
+            var fileUri = encoded ? line[index] == '<' : nextChar == '<';
 
             // Parse value-spec.
-            string value = line.Substring(index + (encoded && fileUri ? 2 : 1));
+            var value = line.Substring(index + (encoded && fileUri ? 2 : 1));
 
             // Decode if required, leaving the binary data in its original format on the wire.
             if (encoded)
@@ -536,12 +536,12 @@ namespace LdifHelper
                 byte[] buffer;
                 try
                 {
-                    using (FileStream fileStream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read))
+                    using (var fileStream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read))
                     {
-                        int length = (int)fileStream.Length;
+                        var length = (int)fileStream.Length;
                         buffer = new byte[length];
                         int count;
-                        int sum = 0;
+                        var sum = 0;
 
                         while ((count = fileStream.Read(buffer, sum, length - sum)) > 0)
                         {

@@ -82,11 +82,11 @@ namespace LdifHelper
         /// <returns>The RFC2849 LDIF string representation for the record.</returns>
         public string Dump()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.distinguishedName).Wrap());
             stringBuilder.AppendLine("changetype: modify");
 
-            foreach (ModSpec modSpecEntry in this.modSpecs)
+            foreach (var modSpecEntry in this.modSpecs)
             {
                 string spec;
                 switch (modSpecEntry.ModSpecType)
@@ -112,7 +112,7 @@ namespace LdifHelper
 
                 stringBuilder.AppendLine(Extensions.GetValueSpec(spec, modSpecEntry.AttributeType).Wrap());
 
-                foreach (object value in modSpecEntry.AttributeValues)
+                foreach (var value in modSpecEntry.AttributeValues)
                 {
                     stringBuilder.AppendLine(Extensions.GetValueSpec(modSpecEntry.AttributeType, value).Wrap());
                 }
