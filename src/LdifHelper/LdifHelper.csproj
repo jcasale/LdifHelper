@@ -6,6 +6,8 @@
     <RootNamespace>LdifHelper</RootNamespace>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>latest</LangVersion>
+    <AnalysisLevel>latest-All</AnalysisLevel>
   </PropertyGroup>
 
   <PropertyGroup>

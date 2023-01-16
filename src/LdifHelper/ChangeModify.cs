@@ -11,11 +11,6 @@ using System.Text;
 public class ChangeModify : IChangeRecord, IEnumerable<ModSpec>
 {
     /// <summary>
-    /// Represents the distinguished name of the record.
-    /// </summary>
-    private readonly string distinguishedName;
-
-    /// <summary>
     /// Represents the mod-spec entries in the record.
     /// </summary>
     private readonly List<ModSpec> modSpecs;
@@ -27,7 +22,7 @@ public class ChangeModify : IChangeRecord, IEnumerable<ModSpec>
     /// <param name="modSpecs">The mod-spec entries for the record.</param>
     public ChangeModify(string distinguishedName, IEnumerable<ModSpec> modSpecs)
     {
-        if (distinguishedName == null)
+        if (distinguishedName is null)
         {
             throw new ArgumentNullException(nameof(distinguishedName), "The distinguished name can not be null.");
         }
@@ -37,12 +32,12 @@ public class ChangeModify : IChangeRecord, IEnumerable<ModSpec>
             throw new ArgumentOutOfRangeException(nameof(distinguishedName), "The distinguished name can not be empty or whitespace.");
         }
 
-        if (modSpecs == null)
+        if (modSpecs is null)
         {
             throw new ArgumentNullException(nameof(modSpecs), "The modify specification entries cannot be null.");
         }
 
-        this.distinguishedName = distinguishedName;
+        this.DistinguishedName = distinguishedName;
         this.modSpecs = new List<ModSpec>(modSpecs);
 
         if (this.modSpecs.Count == 0)
@@ -61,7 +56,7 @@ public class ChangeModify : IChangeRecord, IEnumerable<ModSpec>
     /// Gets the distinguished name of the record.
     /// </summary>
     /// <value>The distinguished name of the record.</value>
-    public string DistinguishedName => this.distinguishedName;
+    public string DistinguishedName { get; }
 
     /// <summary>
     /// Gets the <see cref="ModSpec"/> objects in the record.
@@ -76,32 +71,18 @@ public class ChangeModify : IChangeRecord, IEnumerable<ModSpec>
     public string Dump()
     {
         var stringBuilder = new StringBuilder();
-        stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.distinguishedName).Wrap());
+        stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.DistinguishedName).Wrap());
         stringBuilder.AppendLine("changetype: modify");
 
         foreach (var modSpecEntry in this.modSpecs)
         {
-            string spec;
-            switch (modSpecEntry.ModSpecType)
+            var spec = modSpecEntry.ModSpecType switch
             {
-                case ModSpecType.Add:
-                    spec = "add";
-
-                    break;
-
-                case ModSpecType.Delete:
-                    spec = "delete";
-
-                    break;
-
-                case ModSpecType.Replace:
-                    spec = "replace";
-
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Unknown mod-spec \"{modSpecEntry.ModSpecType}\".");
-            }
+                ModSpecType.Add => "add",
+                ModSpecType.Delete => "delete",
+                ModSpecType.Replace => "replace",
+                _ => throw new InvalidOperationException($"Unknown mod-spec \"{modSpecEntry.ModSpecType}\".")
+            };
 
             stringBuilder.AppendLine(Extensions.GetValueSpec(spec, modSpecEntry.AttributeType).Wrap());
 
@@ -132,5 +113,5 @@ public class ChangeModify : IChangeRecord, IEnumerable<ModSpec>
     /// Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object.</returns>
-    public override string ToString() => $"{nameof(ChangeModify)}<{this.distinguishedName}>";
+    public override string ToString() => $"{nameof(ChangeModify)}<{this.DistinguishedName}>";
 }

@@ -11,7 +11,7 @@ public class AttributeTypeComparer : Comparer<string>
     /// <summary>
     /// Represents the attribute type to order first.
     /// </summary>
-    private static readonly string ObjectClass = "objectClass";
+    private const string ObjectClass = "objectClass";
 
     /// <summary>
     /// Prevents a default instance of the <see cref="AttributeTypeComparer"/> from being created.
@@ -22,7 +22,7 @@ public class AttributeTypeComparer : Comparer<string>
     /// Gets the default instance of the <see cref="AttributeTypeComparer"/> class.
     /// </summary>
     /// <value>The default instance.</value>
-    public static AttributeTypeComparer GetComparer { get; } = new AttributeTypeComparer();
+    public static AttributeTypeComparer GetComparer { get; } = new();
 
     /// <summary>
     /// Performs a comparison of two attribute types and returns a value indicating whether one type is less than, equal to, or greater than the other.
@@ -32,7 +32,7 @@ public class AttributeTypeComparer : Comparer<string>
     /// <returns>A signed integer that indicates the relative values of x and y.</returns>
     public override int Compare(string x, string y)
     {
-        if (x == null)
+        if (x is null)
         {
             throw new ArgumentNullException(nameof(x), "Attribute type cannot be null.");
         }
@@ -42,7 +42,7 @@ public class AttributeTypeComparer : Comparer<string>
             throw new ArgumentOutOfRangeException(nameof(x), "Attribute type cannot be empty or whitespace.");
         }
 
-        if (y == null)
+        if (y is null)
         {
             throw new ArgumentNullException(nameof(y), "Attribute type cannot be null.");
         }

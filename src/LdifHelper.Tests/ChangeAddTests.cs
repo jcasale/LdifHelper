@@ -33,10 +33,10 @@ public class ChangeAddTests
 
     private static readonly LdifAttribute[] LdifAttributes =
     {
-         new LdifAttribute(AttributeTypeObjectClass, AttributeValuesObjectClass),
-         new LdifAttribute(AttributeTypeDisplayName, AttributeValuesDisplayName),
-         new LdifAttribute(AttributeTypeGivenName, AttributeValuesGivenName),
-         new LdifAttribute(AttributeTypeSn, AttributeValuesSn)
+         new(AttributeTypeObjectClass, AttributeValuesObjectClass),
+         new(AttributeTypeDisplayName, AttributeValuesDisplayName),
+         new(AttributeTypeGivenName, AttributeValuesGivenName),
+         new(AttributeTypeSn, AttributeValuesSn)
      };
 
     private static readonly string Dump = string.Join(

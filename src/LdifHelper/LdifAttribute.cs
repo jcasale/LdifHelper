@@ -7,13 +7,10 @@ using System.Collections.Generic;
 /// <summary>
 /// Represents an LDIF attribute type and values.
 /// </summary>
+#pragma warning disable CA1711
 public class LdifAttribute : IReadOnlyList<object>
+#pragma warning restore CA1711
 {
-    /// <summary>
-    /// Represents the attribute type.
-    /// </summary>
-    private readonly string attributeType;
-
     /// <summary>
     /// Represents the attribute values.
     /// </summary>
@@ -26,7 +23,7 @@ public class LdifAttribute : IReadOnlyList<object>
     /// <param name="attributeValues">The attribute values.</param>
     public LdifAttribute(string attributeType, IEnumerable<object> attributeValues)
     {
-        if (attributeType == null)
+        if (attributeType is null)
         {
             throw new ArgumentNullException(nameof(attributeType), "The attribute type can not be null.");
         }
@@ -36,15 +33,15 @@ public class LdifAttribute : IReadOnlyList<object>
             throw new ArgumentOutOfRangeException(nameof(attributeType), "The attribute type can not be empty or whitespace.");
         }
 
-        this.attributeType = attributeType;
-        this.attributeValues = attributeValues == null ? new List<object>() : new List<object>(attributeValues);
+        this.AttributeType = attributeType;
+        this.attributeValues = attributeValues is null ? new List<object>() : new List<object>(attributeValues);
     }
 
     /// <summary>
     /// Gets the attribute type.
     /// </summary>
     /// <value>The attribute type.</value>
-    public string AttributeType => this.attributeType;
+    public string AttributeType { get; }
 
     /// <summary>
     /// Gets the attribute values.
@@ -81,5 +78,5 @@ public class LdifAttribute : IReadOnlyList<object>
     /// Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object.</returns>
-    public override string ToString() => $"{nameof(LdifAttribute)}<{this.attributeType}>";
+    public override string ToString() => $"{nameof(LdifAttribute)}<{this.AttributeType}>";
 }

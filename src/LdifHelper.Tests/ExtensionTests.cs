@@ -52,11 +52,7 @@ public class ExtensionTests
     /// </summary>
     [Fact]
     public void AddOrAppendNullInputThrows()
-    {
-        Dictionary<string, List<object>> input = null;
-
-        Assert.Throws<ArgumentNullException>(() => input.AddOrAppend("key", new object[] { "value" }));
-    }
+        => Assert.Throws<ArgumentNullException>(() => Extensions.AddOrAppend(null, "key", new object[] { "value" }));
 
     /// <summary>
     /// Ensures the extension method rejects a null key.
@@ -263,7 +259,7 @@ public class ExtensionTests
     {
         const byte[] value = null;
 
-        Assert.Throws<ArgumentNullException>(() => value.ToBase64());
+        Assert.Throws<ArgumentNullException>(value.ToBase64);
     }
 
     /// <summary>
@@ -292,7 +288,7 @@ public class ExtensionTests
     {
         const string value = null;
 
-        Assert.Throws<ArgumentNullException>(() => value.ToBase64());
+        Assert.Throws<ArgumentNullException>(value.ToBase64);
     }
 
     /// <summary>
@@ -303,7 +299,7 @@ public class ExtensionTests
     {
         const string value = null;
 
-        Assert.Throws<ArgumentNullException>(() => value.Wrap());
+        Assert.Throws<ArgumentNullException>(value.Wrap);
     }
 
     /// <summary>
@@ -347,7 +343,9 @@ public class ExtensionTests
         {
             // Arrange.
             var bytes = new byte[i];
+#pragma warning disable CA5394 // Do not use insecure randomness
             generator.NextBytes(bytes);
+#pragma warning restore CA5394 // Do not use insecure randomness
             var data = $"wrap:: {bytes.ToBase64()}";
 
             // Act.

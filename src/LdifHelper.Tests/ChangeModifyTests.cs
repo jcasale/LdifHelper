@@ -11,7 +11,7 @@ public class ChangeModifyTests
 {
     private const string DistinguishedName = "CN=Leonardo Pisano Bigollo,OU=users,DC=company,DC=com";
 
-    private static readonly ModSpec[] ModSpecs = {new ModSpec(ModSpecType.Add, "description", new object[] {"Contractor"})};
+    private static readonly ModSpec[] ModSpecs = {new(ModSpecType.Add, "description", new object[] {"Contractor"})};
 
     /// <summary>
     /// Ensures the constructor rejects an empty distinguished name.
@@ -117,7 +117,7 @@ public class ChangeModifyTests
     public void ShouldAddOneValue()
     {
         // Arrange.
-        ModSpec[] modSpec = { new ModSpec(ModSpecType.Add, "postaladdress", new object[] {"2400 Fulton St, San Francisco, CA 94118, USA" })};
+        ModSpec[] modSpec = { new(ModSpecType.Add, "postaladdress", new object[] {"2400 Fulton St, San Francisco, CA 94118, USA" })};
         var dump = string.Join(
             Environment.NewLine,
             "dn: CN=Leonardo Pisano Bigollo,OU=users,DC=company,DC=com",
@@ -171,7 +171,7 @@ public class ChangeModifyTests
     public void ShouldDeleteAllValues()
     {
         // Arrange.
-        ModSpec[] modSpec = { new ModSpec(ModSpecType.Delete, "description", null) };
+        ModSpec[] modSpec = { new(ModSpecType.Delete, "description", null) };
         var dump = string.Join(
             Environment.NewLine,
             "dn: CN=Leonardo Pisano Bigollo,OU=users,DC=company,DC=com",
@@ -194,7 +194,7 @@ public class ChangeModifyTests
     public void ShouldDeleteSingleValues()
     {
         // Arrange.
-        ModSpec[] modSpec = { new ModSpec(ModSpecType.Delete, "description", new object[] { "Contractor" }) };
+        ModSpec[] modSpec = { new(ModSpecType.Delete, "description", new object[] { "Contractor" }) };
         var dump = string.Join(
             Environment.NewLine,
             "dn: CN=Leonardo Pisano Bigollo,OU=users,DC=company,DC=com",
@@ -218,7 +218,7 @@ public class ChangeModifyTests
     public void ShouldReplaceAllValues()
     {
         // Arrange.
-        ModSpec[] modSpec = { new ModSpec(ModSpecType.Replace, "telephonenumber", null) };
+        ModSpec[] modSpec = { new(ModSpecType.Replace, "telephonenumber", null) };
         var dump = string.Join(
             Environment.NewLine,
             "dn: CN=Leonardo Pisano Bigollo,OU=users,DC=company,DC=com",
@@ -241,7 +241,7 @@ public class ChangeModifyTests
     public void ShouldReplaceWithSingleValue()
     {
         // Arrange.
-        ModSpec[] modSpec = { new ModSpec(ModSpecType.Replace, "telephonenumber", new object[] { "+1 (415) 555 1234" }) };
+        ModSpec[] modSpec = { new(ModSpecType.Replace, "telephonenumber", new object[] { "+1 (415) 555 1234" }) };
         var dump = string.Join(
             Environment.NewLine,
             "dn: CN=Leonardo Pisano Bigollo,OU=users,DC=company,DC=com",

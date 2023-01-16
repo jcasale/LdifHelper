@@ -9,26 +9,6 @@ using System.Text;
 public class ChangeModDn : IChangeRecord
 {
     /// <summary>
-    /// Indicates the action to be taken with the original distinguished name.
-    /// </summary>
-    private readonly bool deleteOldRdn;
-
-    /// <summary>
-    /// Represents the distinguished name of the record.
-    /// </summary>
-    private readonly string distinguishedName;
-
-    /// <summary>
-    /// Represents the new relative distinguished name.
-    /// </summary>
-    private readonly string newRdn;
-
-    /// <summary>
-    /// Represents the new location to move an object within the DIT.
-    /// </summary>
-    private readonly string newSuperior;
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="ChangeModDn"/> class.
     /// </summary>
     /// <param name="distinguishedName">The distinguished name of the record.</param>
@@ -38,7 +18,7 @@ public class ChangeModDn : IChangeRecord
     public ChangeModDn(string distinguishedName, string newRdn, bool deleteOldRdn, string newSuperior)
     {
         // The distinguished name is mandatory.
-        if (distinguishedName == null)
+        if (distinguishedName is null)
         {
             throw new ArgumentNullException(nameof(distinguishedName), "The distinguished name can not be null.");
         }
@@ -49,22 +29,22 @@ public class ChangeModDn : IChangeRecord
         }
 
         // The new rdn can not be empty or whitespace.
-        if (newRdn != null
+        if (newRdn is not null
             && string.IsNullOrWhiteSpace(newRdn))
         {
             throw new ArgumentOutOfRangeException(nameof(newRdn), "The new rdn can not be empty or whitespace.");
         }
 
         // The new superior can not be empty or whitespace.
-        if (newSuperior != null
+        if (newSuperior is not null
             && string.IsNullOrWhiteSpace(newSuperior))
         {
             throw new ArgumentOutOfRangeException(nameof(newSuperior), "The new superior can not be empty or whitespace.");
         }
 
         // Validate record produces a change.
-        if (newRdn == null
-            && newSuperior == null)
+        if (newRdn is null
+            && newSuperior is null)
         {
             throw new ArgumentException($"At least one of {nameof(newRdn)} or {nameof(newSuperior)} must be specified.");
         }
@@ -85,41 +65,41 @@ public class ChangeModDn : IChangeRecord
             newRdn = rdn;
         }
         else if (string.IsNullOrWhiteSpace(newSuperior)
-                 && string.Compare(newRdn, rdn, StringComparison.OrdinalIgnoreCase) == 0)
+                 && string.Equals(newRdn, rdn, StringComparison.OrdinalIgnoreCase))
         {
             // If the new superior is unchanged, enforce a change in the newRdn.
             throw new ArgumentOutOfRangeException(nameof(newRdn), "No changes detected.");
         }
 
-        this.distinguishedName = distinguishedName;
-        this.newRdn = newRdn;
-        this.deleteOldRdn = deleteOldRdn;
-        this.newSuperior = newSuperior;
+        this.DistinguishedName = distinguishedName;
+        this.NewRdn = newRdn;
+        this.DeleteOldRdn = deleteOldRdn;
+        this.NewSuperior = newSuperior;
     }
 
     /// <summary>
     /// Gets a value indicating whether or not the original distinguished name will be kept.
     /// </summary>
     /// <value><b>true</b> if the original distinguished name should be kept, otherwise <b>false</b>.</value>
-    public bool DeleteOldRdn => this.deleteOldRdn;
+    public bool DeleteOldRdn { get; }
 
     /// <summary>
     /// Gets the distinguished name of the record.
     /// </summary>
     /// <value>The distinguished name of the record.</value>
-    public string DistinguishedName => this.distinguishedName;
+    public string DistinguishedName { get; }
 
     /// <summary>
     /// Get the new relative distinguished name.
     /// </summary>
     /// <value>The new relative distinguished name.</value>
-    public string NewRdn => this.newRdn;
+    public string NewRdn { get; }
 
     /// <summary>
     /// Gets the new location in the directory tree to move the object.
     /// </summary>
     /// <value>The new location in the directory tree to move the object.</value>
-    public string NewSuperior => this.newSuperior;
+    public string NewSuperior { get; }
 
     /// <summary>
     /// Generates an RFC2849 LDIF string representation for the record.
@@ -128,14 +108,14 @@ public class ChangeModDn : IChangeRecord
     public string Dump()
     {
         var stringBuilder = new StringBuilder();
-        stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.distinguishedName).Wrap());
+        stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.DistinguishedName).Wrap());
         stringBuilder.AppendLine("changetype: modrdn");
-        stringBuilder.AppendLine(Extensions.GetValueSpec("newrdn", this.newRdn).Wrap());
-        stringBuilder.AppendLine($"deleteoldrdn: {(this.deleteOldRdn ? 1 : 0)}");
+        stringBuilder.AppendLine(Extensions.GetValueSpec("newrdn", this.NewRdn).Wrap());
+        stringBuilder.AppendLine($"deleteoldrdn: {(this.DeleteOldRdn ? 1 : 0)}");
 
-        if (!string.IsNullOrWhiteSpace(this.newSuperior))
+        if (!string.IsNullOrWhiteSpace(this.NewSuperior))
         {
-            stringBuilder.AppendLine(Extensions.GetValueSpec("newsuperior", this.newSuperior).Wrap());
+            stringBuilder.AppendLine(Extensions.GetValueSpec("newsuperior", this.NewSuperior).Wrap());
         }
 
         return stringBuilder.ToString();
@@ -145,5 +125,5 @@ public class ChangeModDn : IChangeRecord
     /// Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object.</returns>
-    public override string ToString() => $"{nameof(ChangeModDn)}<{this.distinguishedName}>";
+    public override string ToString() => $"{nameof(ChangeModDn)}<{this.DistinguishedName}>";
 }

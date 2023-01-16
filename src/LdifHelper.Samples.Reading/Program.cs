@@ -47,7 +47,7 @@ internal class Program
 
                 // Only the newsuperior field is optional.
                 var newDistinguishedName =
-                    changeModDn.NewSuperior == null
+                    changeModDn.NewSuperior is null
                         ? $"{changeModDn.NewRdn},{changeModDn.DistinguishedName.Substring(components[0].Length + 1)}"
                         : $"{changeModDn.NewRdn},{changeModDn.NewSuperior}";
 

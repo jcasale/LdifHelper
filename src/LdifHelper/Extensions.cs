@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -18,12 +19,12 @@ public static class Extensions
     /// <param name="value">The dictionary value.</param>
     public static void AddOrAppend(this Dictionary<string, List<object>> input, string key, object value)
     {
-        if (input == null)
+        if (input is null)
         {
             throw new ArgumentNullException(nameof(input));
         }
 
-        if (key == null)
+        if (key is null)
         {
             throw new ArgumentNullException(nameof(key), "The dictionary key can not be null.");
         }
@@ -33,7 +34,7 @@ public static class Extensions
             throw new ArgumentOutOfRangeException(nameof(key), "The dictionary key can not be empty or whitespace.");
         }
 
-        if (value == null)
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value), "The dictionary value can not be null.");
         }
@@ -60,7 +61,7 @@ public static class Extensions
     /// </remarks>
     public static string GetValueSpec(string type, object value)
     {
-        if (type == null)
+        if (type is null)
         {
             throw new ArgumentNullException(nameof(type), "The attribute type can not be null.");
         }
@@ -70,7 +71,7 @@ public static class Extensions
             throw new ArgumentOutOfRangeException(nameof(type), "The attribute type can not be empty or whitespace.");
         }
 
-        if (value == null)
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
         }
@@ -105,7 +106,7 @@ public static class Extensions
     /// <returns>Whether or not the strings leading character is ASCII safe.</returns>
     public static bool IsSafeInitChar(this string value)
     {
-        if (value == null)
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
         }
@@ -127,7 +128,7 @@ public static class Extensions
     /// <returns>Whether or not the string is ASCII safe.</returns>
     public static bool IsSafeString(this string value)
     {
-        if (value == null)
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
         }
@@ -157,7 +158,7 @@ public static class Extensions
     /// <returns>The UTF8 based BASE64 encoded value.</returns>
     public static string ToBase64(this string value)
     {
-        if (value == null)
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
         }
@@ -176,7 +177,7 @@ public static class Extensions
     /// <remarks>The original binary encoding is not changed.</remarks>
     public static string ToBase64(this byte[] value)
     {
-        if (value == null)
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
         }
@@ -191,7 +192,7 @@ public static class Extensions
     /// <returns>A collection of LDAP attribute objects.</returns>
     public static IEnumerable<LdifAttribute> ToLdapAttributes(this Dictionary<string, List<object>> input)
     {
-        if (input == null)
+        if (input is null)
         {
             throw new ArgumentNullException(nameof(input));
         }
@@ -209,7 +210,7 @@ public static class Extensions
     /// <returns>A wrapped string if required.</returns>
     public static string Wrap(this string value)
     {
-        if (value == null)
+        if (value is null)
         {
             throw new ArgumentNullException(nameof(value));
         }
@@ -225,7 +226,7 @@ public static class Extensions
             if (startIndex > 0)
             {
                 // Subtract 1 from all but the first line to accommodate leading space.
-                stringBuilder.AppendFormat("{0} ", Environment.NewLine);
+                stringBuilder.AppendFormat(CultureInfo.InvariantCulture, "{0} ", Environment.NewLine);
                 len = Math.Min(wrapLen, maxLen - startIndex);
             }
             else

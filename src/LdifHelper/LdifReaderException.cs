@@ -2,6 +2,7 @@
 
 using System;
 using System.Globalization;
+using System.Runtime.Serialization;
 
 /// <summary>
 /// Represents an LDIF reader exception.
@@ -53,6 +54,17 @@ public class LdifReaderException : Exception
     /// <param name="args">The format arguments.</param>
     public LdifReaderException(string format, Exception innerException, params object[] args)
         : base(string.Format(CultureInfo.CurrentCulture, format, args), innerException)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LdifReaderException"></see> class with serialized data.
+    /// </summary>
+    /// <param name="serializationInfo">The <see cref="SerializationInfo"></see> that holds the serialized object data about the exception being thrown.</param>
+    /// <param name="streamingContext">The <see cref="StreamingContext"></see> that contains contextual information about the source or destination.</param>
+    /// <exception cref="NotImplementedException"></exception>
+    protected LdifReaderException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+        : base(serializationInfo, streamingContext)
     {
     }
 }

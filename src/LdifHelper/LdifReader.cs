@@ -13,7 +13,7 @@ public class LdifReader
     /// <summary>
     /// Represents data for a change-add record.
     /// </summary>
-    private readonly Dictionary<string, List<object>> attributes = new Dictionary<string, List<object>>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<object>> attributes = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Represents a UTF8 encoder which throws on invalid input.
@@ -23,7 +23,7 @@ public class LdifReader
     /// <summary>
     /// Represents data for a change-modify record.
     /// </summary>
-    private readonly List<ModSpec> modifyEntries = new List<ModSpec>();
+    private readonly List<ModSpec> modifyEntries = new();
 
     /// <summary>
     /// Represents the text reader instance to read from.
@@ -93,7 +93,7 @@ public class LdifReader
         while (true)
         {
             c = ldifReader.textReader.Peek();
-            if (c == '#' || c == '\r' || c == '\n')
+            if (c is '#' or '\r' or '\n')
             {
                 ldifReader.textReader.ReadLine();
                 ldifReader.lineNumber++;
@@ -106,7 +106,7 @@ public class LdifReader
 
         // Consume a line only if its likely to be a version-spec, otherwise throw as it can't be a distinguished name.
         c = ldifReader.textReader.Peek();
-        if (c == 'v' || c == 'V')
+        if (c is 'v' or 'V')
         {
             line = ldifReader.textReader.ReadLine();
             ldifReader.lineNumber++;
@@ -135,15 +135,14 @@ public class LdifReader
             ldifReader.lineNumber++;
 
             // Detect end of entry and skip consecutive empty lines.
-            if (line == null
-                || line.Equals(string.Empty))
+            if (string.IsNullOrWhiteSpace(line))
             {
                 if (ldifReader.changeType != ChangeType.None)
                 {
                     yield return ldifReader.CloseEntry();
                 }
 
-                if (line == null)
+                if (line is null)
                 {
                     yield break;
                 }
@@ -152,7 +151,7 @@ public class LdifReader
             }
 
             // Skip comments and control statements.
-            if (line.StartsWith("#")
+            if (line.StartsWith("#", StringComparison.Ordinal)
                 || line.StartsWith("control:", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
@@ -163,7 +162,7 @@ public class LdifReader
             {
                 case ChangeType.None:
                     // Detect start of new entry and assign distinguished name.
-                    if (ldifReader.distinguishedName == null)
+                    if (ldifReader.distinguishedName is null)
                     {
                         if (line.StartsWith("dn:", StringComparison.OrdinalIgnoreCase))
                         {
@@ -173,7 +172,7 @@ public class LdifReader
                                 ldifReader.lineNumber++;
                             }
 
-                            ldifReader.ParseLine(line, out var _, out var dnValue);
+                            ldifReader.ParseLine(line, out _, out var dnValue);
 
                             if (dnValue is string dnString)
                             {
@@ -345,7 +344,7 @@ public class LdifReader
                         ldifReader.ParseLine(line, out var modAttributeType, out var modAttributeValue);
 
                         // Validate mod-spec.
-                        if (!modSpecAttributeTypeString.Equals(modAttributeType))
+                        if (!string.Equals(modSpecAttributeTypeString, modAttributeType, StringComparison.OrdinalIgnoreCase))
                         {
                             throw new LdifReaderException($"Line {ldifReader.lineNumber}: Inconsistent changetype modify entry, expected \"{modSpecAttributeTypeString}\" but found \"{modAttributeType}\".");
                         }
@@ -377,33 +376,16 @@ public class LdifReader
     {
         try
         {
-            switch (this.changeType)
+            return this.changeType switch
             {
-                case ChangeType.None:
-
-                    throw new InvalidOperationException($"Line {this.lineNumber}: No open entry to close.");
-
-                case ChangeType.Add:
-
-                    return new ChangeAdd(this.distinguishedName, this.attributes.ToLdapAttributes());
-
-                case ChangeType.Delete:
-
-                    return new ChangeDelete(this.distinguishedName);
-
-                case ChangeType.ModDn:
-                case ChangeType.ModRdn:
-
-                    return new ChangeModDn(this.distinguishedName, this.newRdn, this.deleteOldRdn != 0, this.newSuperior);
-
-                case ChangeType.Modify:
-
-                    return new ChangeModify(this.distinguishedName, this.modifyEntries);
-
-                default:
-
-                    throw new InvalidOperationException($"Line {this.lineNumber}: Unknown ChangeType: {this.changeType}.");
-            }
+                ChangeType.None => throw new InvalidOperationException($"Line {this.lineNumber}: No open entry to close."),
+                ChangeType.Add => new ChangeAdd(this.distinguishedName, this.attributes.ToLdapAttributes()),
+                ChangeType.Delete => new ChangeDelete(this.distinguishedName),
+                ChangeType.ModDn => new ChangeModDn(this.distinguishedName, this.newRdn, this.deleteOldRdn != 0, this.newSuperior),
+                ChangeType.ModRdn => new ChangeModDn(this.distinguishedName, this.newRdn, this.deleteOldRdn != 0, this.newSuperior),
+                ChangeType.Modify => new ChangeModify(this.distinguishedName, this.modifyEntries),
+                _ => throw new InvalidOperationException($"Line {this.lineNumber}: Unknown ChangeType: {this.changeType}.")
+            };
         }
         finally
         {
@@ -529,17 +511,16 @@ public class LdifReader
             byte[] buffer;
             try
             {
-                using (var fileStream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read))
-                {
-                    var length = (int)fileStream.Length;
-                    buffer = new byte[length];
-                    int count;
-                    var sum = 0;
+                using var fileStream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read);
 
-                    while ((count = fileStream.Read(buffer, sum, length - sum)) > 0)
-                    {
-                        sum += count;
-                    }
+                var length = (int)fileStream.Length;
+                buffer = new byte[length];
+                int count;
+                var sum = 0;
+
+                while ((count = fileStream.Read(buffer, sum, length - sum)) > 0)
+                {
+                    sum += count;
                 }
             }
             catch (ArgumentException e)

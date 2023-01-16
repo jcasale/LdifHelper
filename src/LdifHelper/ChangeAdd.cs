@@ -11,11 +11,6 @@ using System.Text;
 public class ChangeAdd : IChangeRecord, IEnumerable<LdifAttribute>
 {
     /// <summary>
-    /// Represents the distinguished name of the record.
-    /// </summary>
-    private readonly string distinguishedName;
-
-    /// <summary>
     /// Represents the attribute type and value data in the record.
     /// </summary>
     private readonly SortedDictionary<string, LdifAttribute> ldifAttributes;
@@ -27,7 +22,7 @@ public class ChangeAdd : IChangeRecord, IEnumerable<LdifAttribute>
     /// <param name="ldifAttributes">The attribute type and value data in the record.</param>
     public ChangeAdd(string distinguishedName, IEnumerable<LdifAttribute> ldifAttributes)
     {
-        if (distinguishedName == null)
+        if (distinguishedName is null)
         {
             throw new ArgumentNullException(nameof(distinguishedName), "The distinguished name can not be null.");
         }
@@ -37,11 +32,11 @@ public class ChangeAdd : IChangeRecord, IEnumerable<LdifAttribute>
             throw new ArgumentOutOfRangeException(nameof(distinguishedName), "The distinguished name can not be empty or whitespace.");
         }
 
-        this.distinguishedName = distinguishedName;
+        this.DistinguishedName = distinguishedName;
 
         this.ldifAttributes = new SortedDictionary<string, LdifAttribute>(AttributeTypeComparer.GetComparer);
 
-        if (ldifAttributes != null)
+        if (ldifAttributes is not null)
         {
             foreach (var ldapAttribute in ldifAttributes)
             {
@@ -66,7 +61,7 @@ public class ChangeAdd : IChangeRecord, IEnumerable<LdifAttribute>
     /// Gets the distinguished name of the record.
     /// </summary>
     /// <value>The distinguished name of the record.</value>
-    public string DistinguishedName => this.distinguishedName;
+    public string DistinguishedName { get; }
 
     /// <summary>
     /// Gets a collection that contains the attributes in the record.
@@ -94,7 +89,7 @@ public class ChangeAdd : IChangeRecord, IEnumerable<LdifAttribute>
     public string Dump()
     {
         var stringBuilder = new StringBuilder();
-        stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.distinguishedName).Wrap());
+        stringBuilder.AppendLine(Extensions.GetValueSpec("dn", this.DistinguishedName).Wrap());
 
         foreach (var ldapAttribute in this)
         {
@@ -123,7 +118,7 @@ public class ChangeAdd : IChangeRecord, IEnumerable<LdifAttribute>
     /// Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object.</returns>
-    public override string ToString() => $"{nameof(ChangeAdd)}<{this.distinguishedName}>";
+    public override string ToString() => $"{nameof(ChangeAdd)}<{this.DistinguishedName}>";
 
     /// <summary>
     /// Retrieves the <see cref="LdifAttribute"/> that is associated with the specified attribute type.

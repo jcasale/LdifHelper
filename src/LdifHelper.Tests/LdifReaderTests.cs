@@ -1200,7 +1200,7 @@ public class LdifReaderTests
         }
         finally
         {
-            if (path != null)
+            if (path is not null)
             {
                 new FileInfo(path).Delete();
             }
@@ -1264,7 +1264,7 @@ public class LdifReaderTests
         }
         finally
         {
-            if (path != null)
+            if (path is not null)
             {
                 new FileInfo(path).Delete();
             }
