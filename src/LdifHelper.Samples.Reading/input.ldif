@@ -1,0 +1,26 @@
+version: 1
+
+dn: CN=Ada Lovelace,OU=users,DC=company,DC=com
+changetype: add
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+
+dn: CN=Niklaus Wirth,OU=users,DC=company,DC=com
+changetype: delete
+
+dn: CN=Leonardo Pisano Bigollo,OU=users,DC=company,DC=com
+changetype: modify
+add: postaladdress
+postaladdress: 2400 Fulton St, San Francisco, CA 94118, USA
+-
+add: telephonenumber
+telephonenumber: +1 415 555 1234
+telephonenumber: +1 628 555 0000
+-
+
+dn: CN=Sophie Germain,OU=users,DC=company,DC=com
+changetype: modrdn
+newrdn: CN=Sophie Germain
+deleteoldrdn: 1
+newsuperior: OU=admins,DC=company,DC=com
