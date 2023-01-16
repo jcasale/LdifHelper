@@ -1,0 +1,44 @@
+name: publish
+
+on: workflow_dispatch
+
+env:
+    DOTNET_CLI_TELEMETRY_OPTOUT: true
+    DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+    DOTNET_NOLOGO: true
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Generate version properties
+        run: ./src/VersionInfo.ps1 -Verbose -ErrorAction Stop
+
+      - name: Build project
+        run: dotnet.exe build .\src\LdifHelper.sln --configuration Release
+
+      - name: Run tests
+        run: dotnet.exe test .\src\LdifHelper.sln --configuration Release --no-build
+
+      - name: Pack project
+        run: dotnet.exe pack .\src\LdifHelper\LdifHelper.csproj --configuration Release --no-build
+
+      - name: Upload nuget packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: nuget-packages
+          path: |
+            ./src/LdifHelper/**/*.nupkg
+            ./src/LdifHelper/**/*.snupkg
+          if-no-files-found: error
+
+      - name: Publish nuget packages
+        run: |
+          nuget.exe push .\src\LdifHelper\**\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
+          nuget.exe push .\src\LdifHelper\**\*.snupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}

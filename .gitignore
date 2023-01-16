@@ -1,5 +1,5 @@
 .vs/
-**/*.csproj.user
-**/artifacts/
 **/bin/
 **/obj/
+**/*.user
+**/version.props

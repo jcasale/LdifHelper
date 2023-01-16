@@ -5,16 +5,13 @@
     <AssemblyName>LdifHelper</AssemblyName>
     <RootNamespace>LdifHelper</RootNamespace>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <PackageId>LdifHelper</PackageId>
-    <Version>2.1.0</Version>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup>
+    <PackageId>LdifHelper</PackageId>
     <Product>LdifHelper</Product>
+    <Title>LdifHelper</Title>
     <Description>A library for reading and writing RFC 2849 LDIF files.</Description>
     <Copyright>Joseph L. Casale</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -24,10 +21,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <CLSCompliant>true</CLSCompliant>
     <ComVisible>false</ComVisible>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
