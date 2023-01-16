@@ -1,11 +1,4 @@
-﻿// -----------------------------------------------------------------------
-//  <copyright file="Program.cs" company="Active Netwerx">
-//  Copyright (c) Active Netwerx. All rights reserved.
-//  </copyright>
-//  <author>Joseph L. Casale</author>
-// -----------------------------------------------------------------------
-
-namespace LdifHelper.Samples.Reading;
+﻿namespace LdifHelper.Samples.Reading;
 
 using System;
 using System.IO;

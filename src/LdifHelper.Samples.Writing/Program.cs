@@ -1,11 +1,4 @@
-﻿// -----------------------------------------------------------------------
-//  <copyright file="Program.cs" company="Active Netwerx">
-//  Copyright (c) Active Netwerx. All rights reserved.
-//  </copyright>
-//  <author>Joseph L. Casale</author>
-// -----------------------------------------------------------------------
-
-namespace LdifHelper.Samples.Writing;
+﻿namespace LdifHelper.Samples.Writing;
 
 using System.Collections;
 using System.Collections.Generic;
@@ -30,7 +23,7 @@ internal class Program
                 var values = new List<object>();
                 foreach (var value in (ResultPropertyValueCollection)dictionaryEntry.Value)
                 {
-                    /* 
+                    /*
                      * The library does not make assumptions on what the string representation of an object should be.
                      * All types must be converted to either a string or byte[] before being boxed.
                      */

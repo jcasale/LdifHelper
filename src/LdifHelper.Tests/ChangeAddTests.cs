@@ -1,11 +1,4 @@
-﻿// -----------------------------------------------------------------------
-//  <copyright file="ChangeAddTests.cs" company="Active Netwerx">
-//  Copyright (c) Active Netwerx. All rights reserved.
-//  </copyright>
-//  <author>Joseph L. Casale</author>
-// -----------------------------------------------------------------------
-
-namespace LdifHelper.Tests;
+﻿namespace LdifHelper.Tests;
 
 using System;
 using Xunit;

@@ -1,11 +1,4 @@
-﻿// -----------------------------------------------------------------------
-//  <copyright file="LdifReader.cs" company="Active Netwerx">
-//  Copyright (c) Active Netwerx. All rights reserved.
-//  </copyright>
-//  <author>Joseph L. Casale</author>
-// -----------------------------------------------------------------------
-
-namespace LdifHelper
+﻿namespace LdifHelper
 {
     using System;
     using System.Collections.Generic;

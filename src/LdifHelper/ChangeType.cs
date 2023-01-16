@@ -1,11 +1,4 @@
-﻿// -----------------------------------------------------------------------
-//  <copyright file="ChangeType.cs" company="Active Netwerx">
-//  Copyright (c) Active Netwerx. All rights reserved.
-//  </copyright>
-//  <author>Joseph L. Casale</author>
-// -----------------------------------------------------------------------
-
-namespace LdifHelper
+﻿namespace LdifHelper
 {
     /// <summary>
     /// Represents the current LDIF record type being processed by the reader.
