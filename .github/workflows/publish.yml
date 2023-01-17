@@ -39,6 +39,4 @@ jobs:
           if-no-files-found: error
 
       - name: Publish nuget packages
-        run: |
-          nuget.exe push .\src\LdifHelper\**\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
-          nuget.exe push .\src\LdifHelper\**\*.snupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
+        run: nuget.exe push .\src\LdifHelper\**\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
