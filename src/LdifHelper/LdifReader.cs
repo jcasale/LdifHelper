@@ -394,7 +394,7 @@ public class LdifReader
     }
 
     /// <summary>
-    /// Parses a previously unfolded LDIF line for the an attribute type and its value. The value will be converted to binary if BASE64 encoded.
+    /// Parses a previously unfolded LDIF line for the attribute type and its value. The value will be converted to binary if BASE64 encoded.
     /// </summary>
     /// <param name="line">The unfolded LDIF line.</param>
     /// <param name="attributeType">The resulting attribute type.</param>
@@ -407,41 +407,50 @@ public class LdifReader
             throw new ArgumentException($"Line {this.lineNumber}: Unable to parse null, empty or whitespace line.", nameof(line));
         }
 
-        // Locate first occurrence of separator (empty string case previously validated).
-        var index = line.IndexOf(':');
+        // Determine if the attrval-spec AttributeDescription contains any options, but ignore the result if the occurance appears in the value.
+        var optionsIndex = line.IndexOf(';');
 
-        // Abort on missing separator.
-        if (index == -1)
+        // Locate the beginning of the value-spec.
+        var valueSpecIndex = line.IndexOf(':');
+
+        attributeType = optionsIndex switch
         {
-            throw new LdifReaderException($"Line {this.lineNumber}: Attribute type and value separator not found.");
-        }
+            // The attribute type has been found without any options.
+            -1 when valueSpecIndex > 0 => line.Substring(0, valueSpecIndex),
 
-        // The attribute type has been found.
-        attributeType = line.Substring(0, index);
+            // The attribute type has been found without any options, but the value contains one or more semicolons.
+            > 0 when optionsIndex > valueSpecIndex + 1 => line.Substring(0, valueSpecIndex),
 
-        index++;
+            // The attribute type has been found with one or more options.
+            > 0 when valueSpecIndex > optionsIndex + 1 => line.Substring(0, optionsIndex),
+
+            // Any other combination (e.g., an empty attribute type).
+            _ => throw new LdifReaderException($"Line {this.lineNumber}: Failed to read attrval-spec.")
+        };
+
+        valueSpecIndex++;
 
         // Check for RFC 2849 note 5 or if continued indexing is possible.
-        if (line.Length == index)
+        if (line.Length == valueSpecIndex)
         {
             attributeValue = string.Empty;
 
             return;
         }
 
-        var nextChar = line[index];
+        var nextChar = line[valueSpecIndex];
 
         // Check for an ASCII value-spec, "attribute: ASCII-value".
         if (nextChar == ' ')
         {
-            attributeValue = line.Substring(index + 1);
+            attributeValue = line.Substring(valueSpecIndex + 1);
 
             return;
         }
 
         // The value-spec is either encoded, URI or both, check if continued indexing is possible.
-        index++;
-        if (line.Length == index)
+        valueSpecIndex++;
+        if (line.Length == valueSpecIndex)
         {
             throw new LdifReaderException($"Line {this.lineNumber}: The value-spec is truncated.");
         }
@@ -450,10 +459,10 @@ public class LdifReader
         var encoded = nextChar == ':';
 
         // Check for an URI value-spec, "attribute:< ASCII-value" or "attribute::< BASE64-value".
-        var fileUri = encoded ? line[index] == '<' : nextChar == '<';
+        var fileUri = encoded ? line[valueSpecIndex] == '<' : nextChar == '<';
 
         // Parse value-spec.
-        var value = line.Substring(index + (encoded && fileUri ? 2 : 1));
+        var value = line.Substring(valueSpecIndex + (encoded && fileUri ? 2 : 1));
 
         // Decode if required, leaving the binary data in its original format on the wire.
         if (encoded)

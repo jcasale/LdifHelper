@@ -5,6 +5,7 @@ changetype: add
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
+title;lang-en: Mathematician and Writer
 
 dn: CN=Niklaus Wirth,OU=users,DC=company,DC=com
 changetype: delete

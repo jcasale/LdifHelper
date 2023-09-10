@@ -14,6 +14,81 @@ using Xunit;
 public class LdifReaderTests
 {
     /// <summary>
+    /// Ensures the reader rejects an LDIF record with an attrval-spec containing a valid attribute type and an empty option declaration.
+    /// </summary>
+    [Fact]
+    public void AttrvalSpecWithValidAttributeTypeAndInvalidOptionThrows()
+    {
+        // Arrange.
+        var input = string.Join(
+            Environment.NewLine,
+            "version: 1",
+            "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+            "changetype: add",
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: organizationalPerson",
+            "description;: Lorem ipsum dolor sit amet",
+            string.Empty);
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        using var streamReader = new StreamReader(memoryStream);
+
+        // Act, Assert.
+        Assert.Throws<LdifReaderException>(() => LdifReader.Parse(streamReader).ToArray());
+    }
+
+    /// <summary>
+    /// Ensures the reader rejects an LDIF record with an attrval-spec containing an empty attribute type and an empty option declaration.
+    /// </summary>
+    [Fact]
+    public void AttrvalSpecWithInvalidAttributeTypeAndInvalidOptionThrows()
+    {
+        // Arrange.
+        var input = string.Join(
+            Environment.NewLine,
+            "version: 1",
+            "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+            "changetype: add",
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: organizationalPerson",
+            ";: Lorem ipsum dolor sit amet",
+            string.Empty);
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        using var streamReader = new StreamReader(memoryStream);
+
+        // Act, Assert.
+        Assert.Throws<LdifReaderException>(() => LdifReader.Parse(streamReader).ToArray());
+    }
+
+    /// <summary>
+    /// Ensures the reader rejects an LDIF record with an attrval-spec containing an empty attribute type and a valid option declaration.
+    /// </summary>
+    [Fact]
+    public void AttrvalSpecWithInValidAttributeTypeAndValidOptionThrows()
+    {
+        // Arrange.
+        var input = string.Join(
+            Environment.NewLine,
+            "version: 1",
+            "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+            "changetype: add",
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: organizationalPerson",
+            ";lang-la: Lorem ipsum dolor sit amet",
+            string.Empty);
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        using var streamReader = new StreamReader(memoryStream);
+
+        // Act, Assert.
+        Assert.Throws<LdifReaderException>(() => LdifReader.Parse(streamReader).ToArray());
+    }
+
+    /// <summary>
     /// Ensures a change-add record is read correctly.
     /// </summary>
     [Fact]
@@ -1323,6 +1398,154 @@ public class LdifReaderTests
 
         // Assert.
         Assert.Equal(4, sut.Count);
+    }
+
+    /// <summary>
+    /// Ensures a change-add record that contains an attribute type without any options and a value that contains a semicolon is read correctly.
+    /// </summary>
+    [Fact]
+    public void ShouldProcessValidAttrvalSpec()
+    {
+        // Arrange.
+        const string typeDescription = "description";
+        const string valueDescription = "; Lorem ipsum dolor sit amet";
+        var input = string.Join(
+            Environment.NewLine,
+            "version: 1",
+            "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+            "changetype: add",
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: organizationalPerson",
+            $"{typeDescription}: {valueDescription}",
+            string.Empty);
+
+        // Act.
+        var records = new List<IChangeRecord>();
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        using var streamReader = new StreamReader(memoryStream);
+
+        records.AddRange(LdifReader.Parse(streamReader, true));
+
+        // Assert.
+        Assert.Single(records);
+        Assert.IsType<ChangeAdd>(records[0]);
+
+        var changeAdd = (ChangeAdd)records[0];
+
+        Assert.True(changeAdd.Contains(typeDescription));
+
+        var values = changeAdd[typeDescription];
+
+        Assert.Single(values);
+
+        var value = values.Single();
+
+        Assert.IsType<string>(value);
+
+        var description = (string)value;
+
+        Assert.Equal(valueDescription, description);
+    }
+
+    /// <summary>
+    /// Ensures a change-add record that contains an attribute type with a single option is read correctly.
+    /// </summary>
+    [Fact]
+    public void ShouldProcessValidOption()
+    {
+        // Arrange.
+        const string typeDescription = "description";
+        const string valueDescription = "Lorem ipsum dolor sit amet";
+        var input = string.Join(
+            Environment.NewLine,
+            "version: 1",
+            "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+            "changetype: add",
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: organizationalPerson",
+            $"{typeDescription};lang-la: {valueDescription}",
+            string.Empty);
+
+        // Act.
+        var records = new List<IChangeRecord>();
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        using var streamReader = new StreamReader(memoryStream);
+
+        records.AddRange(LdifReader.Parse(streamReader, true));
+
+        // Assert.
+        Assert.Single(records);
+        Assert.IsType<ChangeAdd>(records[0]);
+
+        var changeAdd = (ChangeAdd)records[0];
+
+        Assert.True(changeAdd.Contains(typeDescription));
+
+        var values = changeAdd[typeDescription];
+
+        Assert.Single(values);
+
+        var value = values.Single();
+
+        Assert.IsType<string>(value);
+
+        var description = (string)value;
+
+        Assert.Equal(valueDescription, description);
+    }
+
+    /// <summary>
+    /// Ensures a change-add record that contains an attribute type with multiple options is read correctly.
+    /// </summary>
+    [Fact]
+    public void ShouldProcessValidOptions()
+    {
+        // Arrange.
+        const string typeTitle = "title";
+        const string valueTitle = "えいぎょうぶ ぶちょう";
+        var input = string.Join(
+            Environment.NewLine,
+            "version: 1",
+            "dn: CN=Ada Lovelace,OU=users,DC=company,DC=com",
+            "changetype: add",
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: organizationalPerson",
+            $"{typeTitle};lang-ja;phonetic:: {valueTitle.ToBase64()}",
+            string.Empty);
+
+        // Act.
+        var records = new List<IChangeRecord>();
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        using var streamReader = new StreamReader(memoryStream);
+
+        records.AddRange(LdifReader.Parse(streamReader, true));
+
+        // Assert.
+        Assert.Single(records);
+        Assert.IsType<ChangeAdd>(records[0]);
+
+        var changeAdd = (ChangeAdd)records[0];
+
+        Assert.True(changeAdd.Contains(typeTitle));
+
+        var values = changeAdd[typeTitle];
+
+        Assert.Single(values);
+
+        var value = values.Single();
+
+        Assert.IsType<byte[]>(value);
+
+        var encoded = (byte[])value;
+        var description = Encoding.UTF8.GetString(encoded);
+
+        Assert.Equal(valueTitle, description);
     }
 
     /// <summary>
