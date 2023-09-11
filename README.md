@@ -1,21 +1,29 @@
-LdifHelper
-==========
+# LdifHelper
+
 [![NuGet](https://img.shields.io/nuget/v/LdifHelper.svg)](https://www.nuget.org/packages/LdifHelper/) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
 A library for reading and writing RFC 2849 LDIF files.
 
-
 ## Usage
 
 ### Reading
+
 ```csharp
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+
 using LdifHelper;
 
 internal class Program
 {
+    /// <summary>
+    /// Pattern splits a distinguished name on the first unescaped comma.
+    /// </summary>
+    private static readonly Regex DistinguishedNameRegex =
+        new(@"\s*(?<=[^\\]),\s*(?=\w+\s*=\s*)", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+
     private static void Main()
     {
         // Open and parse an ASCII encoded file. Use 1252 when reading Microsoft's ldifde.exe output.
@@ -47,8 +55,8 @@ internal class Program
 
             if (changeRecord is ChangeModDn changeModDn)
             {
-                var components = Constants.DistinguishedNameRegex.Split(changeModDn.DistinguishedName);
-                if (components.Length < 2)
+                var components = DistinguishedNameRegex.Split(changeModDn.DistinguishedName, 2);
+                if (components.Length != 2)
                 {
                     throw new InvalidOperationException(
                         $"Invalid distinguished name found for {changeModDn.DistinguishedName}.");
@@ -56,7 +64,7 @@ internal class Program
 
                 // Only the newsuperior field is optional.
                 var newDistinguishedName =
-                    changeModDn.NewSuperior == null
+                    changeModDn.NewSuperior is null
                         ? $"{changeModDn.NewRdn},{changeModDn.DistinguishedName.Substring(components[0].Length + 1)}"
                         : $"{changeModDn.NewRdn},{changeModDn.NewSuperior}";
 
@@ -125,6 +133,7 @@ internal class Program
 ```
 
 ### Writing
+
 ```csharp
 using System.Collections;
 using System.Collections.Generic;
@@ -149,7 +158,7 @@ internal class Program
                 var values = new List<object>();
                 foreach (var value in (ResultPropertyValueCollection)dictionaryEntry.Value)
                 {
-                    /* 
+                    /*
                      * The library does not make assumptions on what the string representation of an object should be.
                      * All types must be converted to either a string or byte[] before being boxed.
                      */

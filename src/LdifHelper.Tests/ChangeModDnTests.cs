@@ -43,74 +43,24 @@ public class ChangeModDnTests
     private const string Rdn = "CN=Sophie Germain";
 
     /// <summary>
-    /// Ensures the constructor rejects an empty distinguished name.
+    /// Ensures the constructor rejects an invalid distinguished name.
     /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameEmptyThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModDn(string.Empty, NewRdn, false, null));
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void CtorParameterDistinguishedNameInvalidThrows(string distinguishedName) =>
+        Assert.Throws<ArgumentException>(() => new ChangeModDn(distinguishedName, NewRdn, false, null));
 
     /// <summary>
-    /// Ensures a distinguished name with an invalid format is rejected.
+    /// Ensures the constructor rejects an invalid new rdn.
     /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameInvalidFormatThrows() =>
-        Assert.Throws<ArgumentException>(() => new ChangeModDn("CN=Sophie Germain", null, false, NewSuperior));
-
-    /// <summary>
-    /// Ensures the constructor rejects a null distinguished name.
-    /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameNullThrows() =>
-        Assert.Throws<ArgumentNullException>(() => new ChangeModDn(null, NewRdn, false, null));
-
-    /// <summary>
-    /// Ensures the constructor rejects a white space distinguished name.
-    /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameWhiteSpaceThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModDn(" ", NewRdn, false, null));
-
-    /// <summary>
-    /// Ensures a record with an empty new rdn and a null new superior is rejected.
-    /// </summary>
-    [Fact]
-    public void CtorParametersNewRdnIsEmptyAndNewSuperiorIsNullThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModDn(DistinguishedName, string.Empty, false, null));
-
-    /// <summary>
-    /// Ensures a record with a null new rdn and an empty new superior is rejected.
-    /// </summary>
-    [Fact]
-    public void CtorParametersNewRdnIsNullAndNewSuperiorIsEmptyThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModDn(DistinguishedName, null, false, string.Empty));
-
-    /// <summary>
-    /// Ensures a record with a null new rdn and a null new superior is rejected.
-    /// </summary>
-    [Fact]
-    public void CtorParametersNewRdnIsNullAndNewSuperiorIsNullThrows() =>
-        Assert.Throws<ArgumentException>(() => new ChangeModDn(DistinguishedName, null, false, null));
-
-    /// <summary>
-    /// Ensures a record with a null new rdn and an empty new superior is rejected.
-    /// </summary>
-    [Fact]
-    public void CtorParametersNewRdnIsNullAndNewSuperiorIsWhiteSpaceThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModDn(DistinguishedName, null, false, " "));
-
-    /// <summary>
-    /// Ensures a record with a null new rdn and a null new superior is rejected.
-    /// </summary>
-    [Fact]
-    public void CtorParametersNewRdnIsUnchangedAndNewSuperiorIsNullThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModDn(DistinguishedName, Rdn, false, null));
-
-    /// <summary>
-    /// Ensures a record with a white space new rdn and a null new superior is rejected.
-    /// </summary>
-    [Fact]
-    public void CtorParametersNewRdnIsWhiteSpaceAndNewSuperiorIsNullThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModDn(DistinguishedName, " ", false, null));
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void CtorParameterNewRdnInvalidThrows(string newRdn) =>
+        Assert.Throws<ArgumentException>(() => new ChangeModDn(DistinguishedName, newRdn, false, null));
 
     /// <summary>
     /// Ensures the DistinguishedName property is valid.
@@ -123,6 +73,34 @@ public class ChangeModDnTests
 
         // Assert.
         Assert.Equal(DistinguishedName, sut.DistinguishedName);
+    }
+
+    /// <summary>
+    /// Ensures the NewRdn property is valid.
+    /// </summary>
+    [Fact]
+    public void PropertyNewRdnIsValid()
+    {
+        // Act.
+        var sut = new ChangeModDn(DistinguishedName, NewRdn, false, null);
+
+        // Assert.
+        Assert.Equal(NewRdn, sut.NewRdn);
+    }
+
+    /// <summary>
+    /// Ensures the NewSuperior property is valid.
+    /// </summary>
+    [Theory]
+    [InlineData(null)]
+    [InlineData(NewSuperior)]
+    public void PropertyNewSuperiorIsValid(string newSuperior)
+    {
+        // Act.
+        var sut = new ChangeModDn(DistinguishedName, Rdn, false, newSuperior);
+
+        // Assert.
+        Assert.Equal(newSuperior, sut.NewSuperior);
     }
 
     /// <summary>
@@ -164,7 +142,7 @@ public class ChangeModDnTests
     public void ShouldProcessNewSuperior()
     {
         // Act.
-        var sut = new ChangeModDn(DistinguishedName, null, true, NewSuperior);
+        var sut = new ChangeModDn(DistinguishedName, Rdn, true, NewSuperior);
 
         // Assert.
         Assert.Equal(Rdn, sut.NewRdn);

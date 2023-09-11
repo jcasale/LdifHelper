@@ -12,63 +12,21 @@ public class ChangeModDn : IChangeRecord
     /// Initializes a new instance of the <see cref="ChangeModDn"/> class.
     /// </summary>
     /// <param name="distinguishedName">The distinguished name of the record.</param>
-    /// <param name="newRdn">The new relative distinguished name. If null, the existing value will be calculated and used, additionally the <b>newSuperior</b> must then be specified.</param>
+    /// <param name="newRdn">The new relative distinguished name.</param>
     /// <param name="deleteOldRdn"><b>true</b> to delete the old RDN of the record, otherwise <b>false</b> to retain it.</param>
-    /// <param name="newSuperior">The new location in the directory tree to move the object. Not required if the <b>newRdn</b> was specified.</param>
+    /// <param name="newSuperior">The optional new location in the directory tree to move the object.</param>
     public ChangeModDn(string distinguishedName, string newRdn, bool deleteOldRdn, string newSuperior)
     {
         // The distinguished name is mandatory.
-        if (distinguishedName is null)
-        {
-            throw new ArgumentNullException(nameof(distinguishedName), "The distinguished name can not be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(distinguishedName))
         {
-            throw new ArgumentOutOfRangeException(nameof(distinguishedName), "The distinguished name can not be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(distinguishedName));
         }
 
-        // The new rdn can not be empty or whitespace.
-        if (newRdn is not null
-            && string.IsNullOrWhiteSpace(newRdn))
-        {
-            throw new ArgumentOutOfRangeException(nameof(newRdn), "The new rdn can not be empty or whitespace.");
-        }
-
-        // The new superior can not be empty or whitespace.
-        if (newSuperior is not null
-            && string.IsNullOrWhiteSpace(newSuperior))
-        {
-            throw new ArgumentOutOfRangeException(nameof(newSuperior), "The new superior can not be empty or whitespace.");
-        }
-
-        // Validate record produces a change.
-        if (newRdn is null
-            && newSuperior is null)
-        {
-            throw new ArgumentException($"At least one of {nameof(newRdn)} or {nameof(newSuperior)} must be specified.");
-        }
-
-        // Calculate the existing rdn.
-        var components = Constants.DistinguishedNameRegex.Split(distinguishedName);
-        if (components.Length < 2)
-        {
-            throw new ArgumentException("The distinguished name is invalid.", nameof(distinguishedName));
-        }
-
-        var rdn = components[0];
-
-        // Validate potential invalid change scenarios.
+        // The new rdn is mandatory.
         if (string.IsNullOrWhiteSpace(newRdn))
         {
-            // If the new rdn is not specified, assume the current value.
-            newRdn = rdn;
-        }
-        else if (string.IsNullOrWhiteSpace(newSuperior)
-                 && string.Equals(newRdn, rdn, StringComparison.OrdinalIgnoreCase))
-        {
-            // If the new superior is unchanged, enforce a change in the newRdn.
-            throw new ArgumentOutOfRangeException(nameof(newRdn), "No changes detected.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(newRdn));
         }
 
         this.DistinguishedName = distinguishedName;

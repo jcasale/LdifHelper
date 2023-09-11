@@ -3,10 +3,18 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+
 using LdifHelper;
 
 internal class Program
 {
+    /// <summary>
+    /// Pattern splits a distinguished name on the first unescaped comma.
+    /// </summary>
+    private static readonly Regex DistinguishedNameRegex =
+        new(@"\s*(?<=[^\\]),\s*(?=\w+\s*=\s*)", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+
     private static void Main()
     {
         // Open and parse an ASCII encoded file. Use 1252 when reading Microsoft's ldifde.exe output.
@@ -38,8 +46,8 @@ internal class Program
 
             if (changeRecord is ChangeModDn changeModDn)
             {
-                var components = Constants.DistinguishedNameRegex.Split(changeModDn.DistinguishedName);
-                if (components.Length < 2)
+                var components = DistinguishedNameRegex.Split(changeModDn.DistinguishedName, 2);
+                if (components.Length != 2)
                 {
                     throw new InvalidOperationException(
                         $"Invalid distinguished name found for {changeModDn.DistinguishedName}.");
