@@ -136,7 +136,7 @@ public class ModSpecEntryTests
 
         // Act.
         var modSpec = new ModSpec(ModSpecType.Add, attributeType, values);
-        var sut = modSpec.AttributeValues.Select(x => (string)x).ToArray();
+        var sut = modSpec.Select(x => (string)x).ToArray();
 
         // Arrange.
         Assert.Equal(values, sut);
