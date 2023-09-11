@@ -22,19 +22,14 @@ public class ChangeModify : IChangeRecord, IEnumerable<ModSpec>
     /// <param name="modSpecs">The mod-spec entries for the record.</param>
     public ChangeModify(string distinguishedName, IEnumerable<ModSpec> modSpecs)
     {
-        if (distinguishedName is null)
-        {
-            throw new ArgumentNullException(nameof(distinguishedName), "The distinguished name can not be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(distinguishedName))
         {
-            throw new ArgumentOutOfRangeException(nameof(distinguishedName), "The distinguished name can not be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(distinguishedName));
         }
 
         if (modSpecs is null)
         {
-            throw new ArgumentNullException(nameof(modSpecs), "The modify specification entries cannot be null.");
+            throw new ArgumentNullException(nameof(modSpecs));
         }
 
         this.DistinguishedName = distinguishedName;
@@ -42,7 +37,7 @@ public class ChangeModify : IChangeRecord, IEnumerable<ModSpec>
 
         if (this.modSpecs.Count == 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(modSpecs), "At least one modify specification must be present.");
+            throw new ArgumentException("Value cannot be an empty collection.", nameof(modSpecs));
         }
     }
 

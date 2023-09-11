@@ -14,14 +14,9 @@ public class ChangeDelete : IChangeRecord
     /// <param name="distinguishedName">The distinguished name of the record.</param>
     public ChangeDelete(string distinguishedName)
     {
-        if (distinguishedName is null)
-        {
-            throw new ArgumentNullException(nameof(distinguishedName), "The distinguished name can not be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(distinguishedName))
         {
-            throw new ArgumentOutOfRangeException(nameof(distinguishedName), "The distinguished name can not be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(distinguishedName));
         }
 
         this.DistinguishedName = distinguishedName;

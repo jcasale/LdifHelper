@@ -22,14 +22,9 @@ public class ChangeAdd : IChangeRecord, IEnumerable<LdifAttribute>
     /// <param name="ldifAttributes">The attribute type and value data in the record.</param>
     public ChangeAdd(string distinguishedName, IEnumerable<LdifAttribute> ldifAttributes)
     {
-        if (distinguishedName is null)
-        {
-            throw new ArgumentNullException(nameof(distinguishedName), "The distinguished name can not be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(distinguishedName))
         {
-            throw new ArgumentOutOfRangeException(nameof(distinguishedName), "The distinguished name can not be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(distinguishedName));
         }
 
         this.DistinguishedName = distinguishedName;

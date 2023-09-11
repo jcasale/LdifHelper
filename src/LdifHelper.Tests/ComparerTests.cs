@@ -9,24 +9,17 @@ using Xunit;
 public class ComparerTests
 {
     /// <summary>
-    /// Ensures the comparer rejects an empty value.
+    /// Ensures the constructor rejects an invalid argument.
     /// </summary>
-    [Fact]
-    public void EmptyValueThrows()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() => AttributeTypeComparer.GetComparer.Compare(string.Empty, "valid"));
-        Assert.Throws<ArgumentOutOfRangeException>(() => AttributeTypeComparer.GetComparer.Compare("valid", string.Empty));
-    }
-
-    /// <summary>
-    /// Ensures the comparer rejects a null value.
-    /// </summary>
-    [Fact]
-    public void NullValueThrows()
-    {
-        Assert.Throws<ArgumentNullException>(() => AttributeTypeComparer.GetComparer.Compare(null, "valid"));
-        Assert.Throws<ArgumentNullException>(() => AttributeTypeComparer.GetComparer.Compare("valid", null));
-    }
+    [Theory]
+    [InlineData(null, "valid")]
+    [InlineData("", "valid")]
+    [InlineData(" ", "valid")]
+    [InlineData("valid", null)]
+    [InlineData("valid", "")]
+    [InlineData("valid", " ")]
+    public void CtorParameterInvalidThrows(string x, string y) =>
+        Assert.Throws<ArgumentException>(() => AttributeTypeComparer.GetComparer.Compare(x, y));
 
     /// <summary>
     /// Ensures the comparer orders objectClass correctly.
@@ -70,15 +63,5 @@ public class ComparerTests
         Assert.Equal(typesOrdered[1], types[1]);
         Assert.Equal(typesOrdered[2], types[2]);
         Assert.Equal(typesOrdered[3], types[3]);
-    }
-
-    /// <summary>
-    /// Ensures the comparer rejects a white space value.
-    /// </summary>
-    [Fact]
-    public void WhiteSpaceThrows()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() => AttributeTypeComparer.GetComparer.Compare(" ", "valid"));
-        Assert.Throws<ArgumentOutOfRangeException>(() => AttributeTypeComparer.GetComparer.Compare("valid", " "));
     }
 }

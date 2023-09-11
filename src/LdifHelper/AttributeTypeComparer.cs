@@ -32,24 +32,14 @@ public class AttributeTypeComparer : Comparer<string>
     /// <returns>A signed integer that indicates the relative values of x and y.</returns>
     public override int Compare(string x, string y)
     {
-        if (x is null)
-        {
-            throw new ArgumentNullException(nameof(x), "Attribute type cannot be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(x))
         {
-            throw new ArgumentOutOfRangeException(nameof(x), "Attribute type cannot be empty or whitespace.");
-        }
-
-        if (y is null)
-        {
-            throw new ArgumentNullException(nameof(y), "Attribute type cannot be null.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(x));
         }
 
         if (string.IsNullOrWhiteSpace(y))
         {
-            throw new ArgumentOutOfRangeException(nameof(y), "Attribute type cannot be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(y));
         }
 
         if (x.Equals(ObjectClass, StringComparison.OrdinalIgnoreCase)

@@ -14,32 +14,21 @@ public class ChangeModifyTests
     private static readonly ModSpec[] ModSpecs = {new(ModSpecType.Add, "description", new object[] {"Contractor"})};
 
     /// <summary>
-    /// Ensures the constructor rejects an empty distinguished name.
+    /// Ensures the constructor rejects an invalid distinguished name.
     /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameEmptyThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModify(string.Empty, ModSpecs));
-
-    /// <summary>
-    /// Ensures the constructor rejects a null distinguished name.
-    /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameNullThrows() =>
-        Assert.Throws<ArgumentNullException>(() => new ChangeModify(null, ModSpecs));
-
-    /// <summary>
-    /// Ensures the constructor rejects a white space distinguished name.
-    /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameWhiteSpaceThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModify(" ", ModSpecs));
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void CtorParameterDistinguishedNameInvalidThrows(string distinguishedName) =>
+        Assert.Throws<ArgumentException>(() => new ChangeModify(distinguishedName, ModSpecs));
 
     /// <summary>
     /// Ensures the constructor rejects an empty spec collection.
     /// </summary>
     [Fact]
     public void CtorParameterModSpecsEmptyThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeModify(DistinguishedName, Array.Empty<ModSpec>()));
+        Assert.Throws<ArgumentException>(() => new ChangeModify(DistinguishedName, Array.Empty<ModSpec>()));
 
     /// <summary>
     /// Ensures the constructor rejects a null mod spec collection.

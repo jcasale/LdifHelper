@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 /// <summary>
 /// Represents a mod-spec operation for an RFC2849 change-modify record.
@@ -24,17 +25,12 @@ public class ModSpec : IEnumerable<object>
     {
         if (!Enum.IsDefined(typeof(ModSpecType), modSpecType))
         {
-            throw new ArgumentOutOfRangeException(nameof(modSpecType), $"Unknown mod-spec \"{modSpecType}\".");
-        }
-
-        if (attributeType is null)
-        {
-            throw new ArgumentNullException(nameof(attributeType), "The attribute type can not be null.");
+            throw new InvalidEnumArgumentException(nameof(modSpecType), (int)modSpecType, typeof(ModSpecType));
         }
 
         if (string.IsNullOrWhiteSpace(attributeType))
         {
-            throw new ArgumentOutOfRangeException(nameof(attributeType), "The attribute type can not be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(attributeType));
         }
 
         this.ModSpecType = modSpecType;
@@ -44,7 +40,7 @@ public class ModSpec : IEnumerable<object>
         if (this.ModSpecType == ModSpecType.Add
             && this.attributeValues.Count == 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(attributeValues), "At least one attribute value must be present with an Add mod-spec.");
+            throw new InvalidOperationException("At least one attribute value must be present with an Add mod-spec.");
         }
     }
 

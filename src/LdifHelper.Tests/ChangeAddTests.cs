@@ -82,25 +82,14 @@ public class ChangeAddTests
     }
 
     /// <summary>
-    /// Ensures the constructor rejects an empty distinguished name.
+    /// Ensures the constructor rejects an invalid distinguished name.
     /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameEmptyThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeAdd(string.Empty, null));
-
-    /// <summary>
-    /// Ensures the constructor rejects a null distinguished name.
-    /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameNullThrows() =>
-        Assert.Throws<ArgumentNullException>(() => new ChangeAdd(null, null));
-
-    /// <summary>
-    /// Ensures the constructor rejects a white space distinguished name.
-    /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameWhiteSpaceThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeAdd(" ", null));
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void CtorParameterDistinguishedNameInvalidThrows(string distinguishedName) =>
+        Assert.Throws<ArgumentException>(() => new ChangeAdd(distinguishedName, null));
 
     /// <summary>
     /// Ensures the Contains method is valid.

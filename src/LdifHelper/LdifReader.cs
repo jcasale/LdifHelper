@@ -119,7 +119,7 @@ public class LdifReader
                 if (!int.TryParse(attributeValue as string, out var version)
                     || version != 1)
                 {
-                    throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid LDIF version spec: \"{line}\".");
+                    throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid LDIF version spec.");
                 }
             }
             else
@@ -185,7 +185,7 @@ public class LdifReader
                                     // Data for a distinguished name that is encoded is expected to be UTF8.
                                     ldifReader.distinguishedName = ldifReader.encodingUtf8.GetString(dnBytes);
                                 }
-                                catch (ArgumentException e)
+                                catch (Exception e)
                                 {
                                     throw new LdifReaderException($"Line {ldifReader.lineNumber}: Failed to decode distinguished name.", e);
                                 }
@@ -263,14 +263,14 @@ public class LdifReader
                             // Data for a newrdn or newsuperior that is encoded is expected to be UTF8.
                             moddnString = ldifReader.encodingUtf8.GetString(b);
                         }
-                        catch (ArgumentException e)
+                        catch (Exception e)
                         {
-                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Failed to decode {moddnType}.", e);
+                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Failed to decode moddn type.", e);
                         }
                     }
                     else
                     {
-                        throw new LdifReaderException($"Line {ldifReader.lineNumber}: Unknown {moddnType} type, \"{moddnValue.GetType()}\".");
+                        throw new LdifReaderException($"Line {ldifReader.lineNumber}: Unknown moddn type, \"{moddnValue.GetType()}\".");
                     }
 
                     // Apply change-moddn statements.
@@ -285,7 +285,7 @@ public class LdifReader
                             if (!int.TryParse(moddnString, out ldifReader.deleteOldRdn)
                                 || !(ldifReader.deleteOldRdn == 0 || ldifReader.deleteOldRdn == 1))
                             {
-                                throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid deleteoldrdn value: \"{moddnString}\".");
+                                throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid deleteoldrdn value.");
                             }
 
                             break;
@@ -296,7 +296,7 @@ public class LdifReader
                             break;
 
                         default:
-                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid moddn entry: \"{moddnType}\".");
+                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid moddn entry.");
                     }
 
                     break;
@@ -314,13 +314,13 @@ public class LdifReader
                     // Detect mod-spec.
                     if (!Enum.TryParse(modSpecString, true, out ModSpecType modSpec))
                     {
-                        throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid mod-spec in change-modify entry: \"{modSpecString}\".");
+                        throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid mod-spec in change-modify entry.");
                     }
 
                     var modSpecAttributeTypeString = modSpecAttributeType as string;
                     if (string.IsNullOrWhiteSpace(modSpecAttributeTypeString))
                     {
-                        throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid attrval-spec in change-modify entry: \"{modSpecAttributeTypeString}\".");
+                        throw new LdifReaderException($"Line {ldifReader.lineNumber}: Invalid attrval-spec in change-modify entry.");
                     }
 
                     // Consume all related entries up to SEP.
@@ -346,7 +346,7 @@ public class LdifReader
                         // Validate mod-spec.
                         if (!string.Equals(modSpecAttributeTypeString, modAttributeType, StringComparison.OrdinalIgnoreCase))
                         {
-                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Inconsistent changetype modify entry, expected \"{modSpecAttributeTypeString}\" but found \"{modAttributeType}\".");
+                            throw new LdifReaderException($"Line {ldifReader.lineNumber}: Inconsistent changetype modify entry.");
                         }
 
                         values.Add(modAttributeValue);
@@ -363,7 +363,7 @@ public class LdifReader
 
                 default:
 
-                    throw new InvalidOperationException($"Line {ldifReader.lineNumber}: Unknown ChangeType: {ldifReader.changeType}.");
+                    throw new InvalidOperationException($"Line {ldifReader.lineNumber}: Unknown ChangeType.");
             }
         }
     }
@@ -384,7 +384,7 @@ public class LdifReader
                 ChangeType.ModDn => new ChangeModDn(this.distinguishedName, this.newRdn, this.deleteOldRdn != 0, this.newSuperior),
                 ChangeType.ModRdn => new ChangeModDn(this.distinguishedName, this.newRdn, this.deleteOldRdn != 0, this.newSuperior),
                 ChangeType.Modify => new ChangeModify(this.distinguishedName, this.modifyEntries),
-                _ => throw new InvalidOperationException($"Line {this.lineNumber}: Unknown ChangeType: {this.changeType}.")
+                _ => throw new InvalidOperationException($"Line {this.lineNumber}: Unknown ChangeType.")
             };
         }
         finally
@@ -471,7 +471,7 @@ public class LdifReader
             {
                 attributeValue = Convert.FromBase64String(value);
             }
-            catch (FormatException e)
+            catch (Exception e)
             {
                 throw new LdifReaderException($"Line {this.lineNumber}: Failed to decode BASE64 data.", e);
             }
@@ -501,7 +501,7 @@ public class LdifReader
                     // Data for a URI resource that is encoded is expected to be UTF8.
                     uriString = this.encodingUtf8.GetString((byte[])attributeValue);
                 }
-                catch (ArgumentException e)
+                catch (Exception e)
                 {
                     throw new LdifReaderException($"Line {this.lineNumber}: A URI value-spec could not be read as a string, \"{attributeValue.GetType()}\".", e);
                 }
@@ -512,9 +512,9 @@ public class LdifReader
             {
                 uri = new Uri(uriString);
             }
-            catch (UriFormatException e)
+            catch (Exception e)
             {
-                throw new LdifReaderException($"Line {this.lineNumber}: Invalid URI format, \"{uriString}\".", e);
+                throw new LdifReaderException($"Line {this.lineNumber}: Invalid URI format.", e);
             }
 
             byte[] buffer;
@@ -532,23 +532,7 @@ public class LdifReader
                     sum += count;
                 }
             }
-            catch (ArgumentException e)
-            {
-                throw new LdifReaderException($"Line {this.lineNumber}: Failed to load URI based resource.", e);
-            }
-            catch (IOException e)
-            {
-                throw new LdifReaderException($"Line {this.lineNumber}: Failed to load URI based resource.", e);
-            }
-            catch (NotSupportedException e)
-            {
-                throw new LdifReaderException($"Line {this.lineNumber}: Failed to load URI based resource.", e);
-            }
-            catch (System.Security.SecurityException e)
-            {
-                throw new LdifReaderException($"Line {this.lineNumber}: Failed to load URI based resource.", e);
-            }
-            catch (UnauthorizedAccessException e)
+            catch (Exception e)
             {
                 throw new LdifReaderException($"Line {this.lineNumber}: Failed to load URI based resource.", e);
             }

@@ -1,6 +1,7 @@
 ﻿namespace LdifHelper.Tests;
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
@@ -9,6 +10,30 @@ using Xunit;
 /// </summary>
 public class ModSpecEntryTests
 {
+    /// <summary>
+    /// Ensures the constructor rejects an invalid attribute type.
+    /// </summary>
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void CtorParameterAttributeTypeInvalidThrows(string attributeType) =>
+        Assert.Throws<ArgumentException>(() => new ModSpec(ModSpecType.Add, attributeType, Array.Empty<object>()));
+
+    /// <summary>
+    /// Ensures the constructor rejects an add mod-spec with an empty collection of attribute values.
+    /// </summary>
+    [Fact]
+    public void CtorParameterAttributeValuesEmptyWhenModSpecIsAddThrows() =>
+        Assert.Throws<InvalidOperationException>(() => new ModSpec(ModSpecType.Add, "description", Array.Empty<object>()));
+
+    /// <summary>
+    /// Ensures the constructor rejects an add mod-spec with a null collection of attribute values.
+    /// </summary>
+    [Fact]
+    public void CtorParameterAttributeValuesNullWhenModSpecIsAddThrows() =>
+        Assert.Throws<InvalidOperationException>(() => new ModSpec(ModSpecType.Add, "description", null));
+
     /// <summary>
     /// Ensures the constructor rejects an invalid mod-spec.
     /// </summary>
@@ -19,43 +44,8 @@ public class ModSpecEntryTests
         var modSpec = Enum.GetValues(typeof(ModSpecType)).Cast<int>().Max() + 1;
 
         // Assert.
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ModSpec((ModSpecType)modSpec, "description", new[] { "Contractor" }));
+        Assert.Throws<InvalidEnumArgumentException>(() => new ModSpec((ModSpecType)modSpec, "description", new[] { "Contractor" }));
     }
-
-    /// <summary>
-    /// Ensures the constructor rejects an empty attribute type.
-    /// </summary>
-    [Fact]
-    public void CtorParameterTypeEmptyThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ModSpec(ModSpecType.Add, string.Empty, new[] { "Contractor" }));
-
-    /// <summary>
-    /// Ensures the constructor rejects a null attribute type.
-    /// </summary>
-    [Fact]
-    public void CtorParameterTypeNullThrows() =>
-        Assert.Throws<ArgumentNullException>(() => new ModSpec(ModSpecType.Add, null, new[] { "Contractor" }));
-
-    /// <summary>
-    /// Ensures the constructor rejects a white space attribute type.
-    /// </summary>
-    [Fact]
-    public void CtorParameterTypeWhiteSpaceThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ModSpec(ModSpecType.Add, " ", new[] { "Contractor" }));
-
-    /// <summary>
-    /// Ensures the constructor rejects an add mod-spec with an empty collection of attribute values.
-    /// </summary>
-    [Fact]
-    public void CtorParameterValuesEmptyWhenModSpecIsAddThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ModSpec(ModSpecType.Add, "description", Array.Empty<object>()));
-
-    /// <summary>
-    /// Ensures the constructor rejects an add mod-spec with a null collection of attribute values.
-    /// </summary>
-    [Fact]
-    public void CtorParameterValuesNullWhenModSpecIsAddThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ModSpec(ModSpecType.Add, "description", null));
 
     /// <summary>
     /// Ensures the Count property is valid.

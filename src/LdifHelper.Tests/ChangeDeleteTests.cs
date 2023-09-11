@@ -17,25 +17,14 @@ public class ChangeDeleteTests
         string.Empty);
 
     /// <summary>
-    /// Ensures the constructor rejects an empty distinguished name.
+    /// Ensures the constructor rejects an invalid distinguished name.
     /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameEmptyThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeDelete(string.Empty));
-
-    /// <summary>
-    /// Ensures the constructor rejects a null distinguished name.
-    /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameNullThrows() =>
-        Assert.Throws<ArgumentNullException>(() => new ChangeDelete(null));
-
-    /// <summary>
-    /// Ensures the constructor rejects a white space distinguished name.
-    /// </summary>
-    [Fact]
-    public void CtorParameterDistinguishedNameWhiteSpaceThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ChangeDelete(" "));
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void CtorParameterDistinguishedNameInvalidThrows(string distinguishedName) =>
+        Assert.Throws<ArgumentException>(() => new ChangeDelete(distinguishedName));
 
     /// <summary>
     /// Ensures the Dump method is valid.

@@ -23,14 +23,9 @@ public class LdifAttribute : IReadOnlyList<object>
     /// <param name="attributeValues">The attribute values.</param>
     public LdifAttribute(string attributeType, IEnumerable<object> attributeValues)
     {
-        if (attributeType is null)
-        {
-            throw new ArgumentNullException(nameof(attributeType), "The attribute type can not be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(attributeType))
         {
-            throw new ArgumentOutOfRangeException(nameof(attributeType), "The attribute type can not be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(attributeType));
         }
 
         this.AttributeType = attributeType;

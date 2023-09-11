@@ -24,19 +24,14 @@ public static class Extensions
             throw new ArgumentNullException(nameof(input));
         }
 
-        if (key is null)
-        {
-            throw new ArgumentNullException(nameof(key), "The dictionary key can not be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(key))
         {
-            throw new ArgumentOutOfRangeException(nameof(key), "The dictionary key can not be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
         }
 
         if (value is null)
         {
-            throw new ArgumentNullException(nameof(value), "The dictionary value can not be null.");
+            throw new ArgumentNullException(nameof(value));
         }
 
         if (input.TryGetValue(key, out var values))
@@ -61,19 +56,14 @@ public static class Extensions
     /// </remarks>
     public static string GetValueSpec(string type, object value)
     {
-        if (type is null)
-        {
-            throw new ArgumentNullException(nameof(type), "The attribute type can not be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(type))
         {
-            throw new ArgumentOutOfRangeException(nameof(type), "The attribute type can not be empty or whitespace.");
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(type));
         }
 
         if (value is null)
         {
-            throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
+            throw new ArgumentNullException(nameof(value));
         }
 
         if (value is string s)
@@ -96,7 +86,7 @@ public static class Extensions
             return $"{type}:: {b.ToBase64()}";
         }
 
-        throw new ArgumentOutOfRangeException(nameof(value), $"Unknown value type \"{value.GetType()}\".");
+        throw new InvalidOperationException($"Unknown value type \"{value.GetType()}\".");
     }
 
     /// <summary>
@@ -108,7 +98,7 @@ public static class Extensions
     {
         if (value is null)
         {
-            throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
+            throw new ArgumentNullException(nameof(value));
         }
 
         // RFC2849 note 5.
@@ -130,7 +120,7 @@ public static class Extensions
     {
         if (value is null)
         {
-            throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
+            throw new ArgumentNullException(nameof(value));
         }
 
         // RFC2849 note 5.
@@ -160,7 +150,7 @@ public static class Extensions
     {
         if (value is null)
         {
-            throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
+            throw new ArgumentNullException(nameof(value));
         }
 
         var utf16Bytes = Encoding.Unicode.GetBytes(value);
@@ -179,7 +169,7 @@ public static class Extensions
     {
         if (value is null)
         {
-            throw new ArgumentNullException(nameof(value), "The attribute value can not be null.");
+            throw new ArgumentNullException(nameof(value));
         }
 
         return Convert.ToBase64String(value);
@@ -197,9 +187,14 @@ public static class Extensions
             throw new ArgumentNullException(nameof(input));
         }
 
-        foreach (var kvp in input)
+        return Func(input);
+
+        static IEnumerable<LdifAttribute> Func(Dictionary<string, List<object>> value)
         {
-            yield return new LdifAttribute(kvp.Key, kvp.Value);
+            foreach (var kvp in value)
+            {
+                yield return new LdifAttribute(kvp.Key, kvp.Value);
+            }
         }
     }
 

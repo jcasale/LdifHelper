@@ -18,7 +18,7 @@ public class ExtensionTests
     {
         var input = new Dictionary<string, List<object>>();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => input.AddOrAppend(string.Empty, new object[] { "value" }));
+        Assert.Throws<ArgumentException>(() => input.AddOrAppend(string.Empty, new object[] { "value" }));
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class ExtensionTests
     {
         var input = new Dictionary<string, List<object>>();
 
-        Assert.Throws<ArgumentNullException>(() => input.AddOrAppend(null, new object[] { "value" }));
+        Assert.Throws<ArgumentException>(() => input.AddOrAppend(null, new object[] { "value" }));
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public class ExtensionTests
     {
         var input = new Dictionary<string, List<object>>();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => input.AddOrAppend(" ", new object[] { "value" }));
+        Assert.Throws<ArgumentException>(() => input.AddOrAppend(" ", new object[] { "value" }));
     }
 
     /// <summary>
@@ -92,14 +92,14 @@ public class ExtensionTests
     /// </summary>
     [Fact]
     public void GetValueSpecEmptyTypeThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => Extensions.GetValueSpec(string.Empty, "value"));
+        Assert.Throws<ArgumentException>(() => Extensions.GetValueSpec(string.Empty, "value"));
 
     /// <summary>
     /// Ensures the method rejects a null attribute type.
     /// </summary>
     [Fact]
     public void GetValueSpecNullTypeThrows() =>
-        Assert.Throws<ArgumentNullException>(() => Extensions.GetValueSpec(null, "value"));
+        Assert.Throws<ArgumentException>(() => Extensions.GetValueSpec(null, "value"));
 
     /// <summary>
     /// Ensures the method rejects a null attribute value.
@@ -113,7 +113,7 @@ public class ExtensionTests
     /// </summary>
     [Fact]
     public void GetValueSpecUnknownValueTypeThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => Extensions.GetValueSpec("type", 42));
+        Assert.Throws<InvalidOperationException>(() => Extensions.GetValueSpec("type", 42));
 
     /// <summary>
     /// Ensures the method base64 encodes a binary attribute value.
@@ -184,7 +184,7 @@ public class ExtensionTests
     /// </summary>
     [Fact]
     public void GetValueSpecWhiteSpaceTypeThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => Extensions.GetValueSpec(" ", "value"));
+        Assert.Throws<ArgumentException>(() => Extensions.GetValueSpec(" ", "value"));
 
     /// <summary>
     /// Ensures the extension method identifies some possible cases.
@@ -286,10 +286,16 @@ public class ExtensionTests
     [Fact]
     public void ToBase64StringNullValueThrows()
     {
-        const string value = null;
-
-        Assert.Throws<ArgumentNullException>(value.ToBase64);
+        Assert.Throws<ArgumentNullException>(() => Extensions.ToBase64((string)null));
+        Assert.Throws<ArgumentNullException>(() => Extensions.ToBase64((byte[])null));
     }
+
+    /// <summary>
+    /// Ensures the extension method rejects null input.
+    /// </summary>
+    [Fact]
+    public void ToLdapAttributesNullInputThrows()
+        => Assert.Throws<ArgumentNullException>(() => Extensions.ToLdapAttributes(null));
 
     /// <summary>
     /// Ensures the extension method rejects a null value.

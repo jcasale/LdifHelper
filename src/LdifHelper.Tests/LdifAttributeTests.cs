@@ -29,25 +29,14 @@ public class LdifAttributeTests
     }
 
     /// <summary>
-    /// Ensures the constructor rejects an empty attribute type.
+    /// Ensures the constructor rejects an invalid attribute type.
     /// </summary>
-    [Fact]
-    public void CtorParameterTypeEmptyThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new LdifAttribute(string.Empty, null));
-
-    /// <summary>
-    /// Ensures the constructor rejects a null attribute type.
-    /// </summary>
-    [Fact]
-    public void CtorParameterTypeNullThrows() =>
-        Assert.Throws<ArgumentNullException>(() => new LdifAttribute(null, null));
-
-    /// <summary>
-    /// Ensures the constructor rejects a white space attribute type.
-    /// </summary>
-    [Fact]
-    public void CtorParameterTypeWhiteSpaceThrows() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => new LdifAttribute(" ", null));
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void CtorParameterAttributeTypeInvalidThrows(string attributeType) =>
+        Assert.Throws<ArgumentException>(() => new LdifAttribute(attributeType, null));
 
     /// <summary>
     /// Ensures the Count property is valid.
